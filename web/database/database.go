@@ -1,8 +1,7 @@
 package database
 
 import (
-	"ecommerce/web/config"
-	"fmt"
+	"ecommerce/internal/entities"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -12,37 +11,25 @@ type Group_tables interface {
 	Migrate_me()
 }
 
-type ItsaDatabase interface {
-	Returnconn() *gorm.DB
-}
+// type DBConn struct {
+// 	DB *gorm.DB
+// }
 
-type DBConn struct {
-	DB *gorm.DB
-}
+func Connect_to(envs map[string]string) *gorm.DB {
 
-func Connect_to() *DBConn {
-
-	val, err := config.LoadEnv("DATABASE_ADDR")
-	if err != nil {
-		panic("Coldnt load env filess")
-	}
 	var db *gorm.DB
+	var err error
 
-	if db, err = gorm.Open(postgres.Open(val["DATABASE_ADDR"]), &gorm.Config{}); err != nil {
+	if db, err = gorm.Open(postgres.Open(envs["DATABASE_ADDR"]), &gorm.Config{}); err != nil {
 		panic("cannot connect to the databse...")
+	} else {
+		Migrte_all(db,&entities.User{})
+		return db
 	}
-
-	fmt.Println("connected to the databse successfully ... ")
-
-	return &DBConn{DB: db}
 }
 
-func (dbconn *DBConn) Migrte_all(models ...Group_tables) {
+func Migrte_all(dbconn *gorm.DB, models ...Group_tables) {
 	for _, model := range models {
-		dbconn.DB.AutoMigrate(model)
+		dbconn.AutoMigrate(model)
 	}
-}
-
-func (dbconn *DBConn) Returnconn() *gorm.DB {
-	return dbconn.DB
 }

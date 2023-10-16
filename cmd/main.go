@@ -1,23 +1,24 @@
 package main
 
 import (
-	"ecommerce/internal/entities"
 	"ecommerce/web/config"
-	"ecommerce/web/database"
+	"ecommerce/wireeeeeee"
 )
 
 func main() {
 
-	envs, err := config.LoadEnv("DATABASE_ADDR")
+	envs, err := config.LoadEnv("DATABASE_ADDR", "EMAIL", "PASSWORD", "SECRET")
 
 	if err != nil {
 		panic("Cannot connect to the database...")
 	}
 
-	addr := envs["DATABASE_ADDR"]
+	server,err := wireeeeeee.InitializeAPI(envs)
 
-	database.Connect_to(addr)
+	if err != nil {
+		panic("Couldnt start server")
+	}
 
-	database.Migrte_all(&entities.User{})
+	server.Start()
 
 }
