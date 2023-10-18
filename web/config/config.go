@@ -1,21 +1,38 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"os"
 
-func LoadEnv(keys ...string) (map[string]string, error) {
+	"github.com/go-playground/validator"
+	"github.com/joho/godotenv"
+)
 
-	var res = make(map[string]string)
+type Config struct {
+	DATABASE_ADDR string `validate:"required"`
+	SECRET        string `validate:"required"`
+	EMAIL         string `validate:"required"`
+	PASSWORD      string `validate:"required"`
+}
 
-	viper.SetConfigFile("../../../.env")
+func LoadConfig() (Config, error) {
 
-	if err := viper.ReadInConfig(); err != nil {
-		return nil,err
+	var config Config
+
+	if err := godotenv.Load(); err != nil {
+		return config, err
 	}
 
-	for _, key := range keys {
-		res[key] = viper.GetString(key)
+	// Read environment variables
+	config.DATABASE_ADDR = os.Getenv("DATABASE_ADDR")
+	config.SECRET = os.Getenv("SECRET")
+	config.EMAIL = os.Getenv("EMAIL")
+	config.PASSWORD = os.Getenv("PASSWORD")
+
+	// Perform validation
+	validate := validator.New()
+	if err := validate.Struct(config); err != nil {
+		return config, err
 	}
 
-	return res,nil
-
+	return config, nil
 }

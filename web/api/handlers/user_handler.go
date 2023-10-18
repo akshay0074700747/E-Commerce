@@ -1,44 +1,68 @@
 package handlers
 
 import (
-	"ecommerce/internal/adapters"
-	"ecommerce/internal/usecases"
-	"ecommerce/web/database"
-	"ecommerce/web/helpers"
+	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
+	"ecommerce/web/api/middlewares"
+	helperstructs "ecommerce/web/helpers/helper_structs"
+	"ecommerce/web/helpers/responce"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
-	UserUseCase usecases.UserUsecase
+	userUseCase usecasesinterface.UserUsecaseInterface
 }
 
-func NewUserHandler(userusecase usecases.UserUsecase) *UserHandler {
-	return &UserHandler{UserUseCase: userusecase}
+func NewUserHandler(usecase usecasesinterface.UserUsecaseInterface) *UserHandler {
+	return &UserHandler{
+		userUseCase: usecase,
+	}
 }
 
-func (userhandler *UserHandler) RegisterUser(c echo.Context, dbs database.ItsaDatabase) error {
-	var jsondta map[string]interface{}
+func (cr *UserHandler) UserSignUp(c *gin.Context) {
 
-	if err := c.Bind(&jsondta); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid json data..."})
+	buffer := c.Copy()
+
+	var user helperstructs.UserReq
+	err := c.BindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't bind",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
 	}
 
-	useradapter := adapters.NewUserAdapter(dbs.Returnconn())
+	errr, otpstat := middlewares.Otp_Gen(buffer)
 
-	email, mobile, name := jsondta["email"], jsondta["mobile"], jsondta["name"]
-
-	password := helpers.Hash_pass(jsondta["password"].(string))
-
-	userusecase := usecases.NewUserUsecase(useradapter)
-
-	// Assuming RegisterUser returns an error
-	if err := userusecase.RegisterUser(email.(string), password, mobile.(string), name.(string)); err != nil {
-		// Handle the error, e.g., return an HTTP response with the error message.
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	if errr != nil {
+		c.JSON(http.StatusConflict, errr.Error())
+		return
 	}
 
-	// Registration was successful; you can return a success response.
-	return c.JSON(http.StatusOK, map[string]string{"message": "User registered successfully"})
+	if !otpstat {
+		c.JSON(http.StatusNotFound, gin.H{"error": "otp is not verified"})
+		return
+	}
+
+	userData, err := cr.userUseCase.UserSignUp(c.Request.Context(), user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responce.Response{
+			StatusCode: 400,
+			Message:    "unable signup",
+			Data:       responce.UserData{},
+			Errors:     err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusCreated, responce.Response{
+		StatusCode: 201,
+		Message:    "user signup Successfully",
+		Data:       userData,
+		Errors:     nil,
+	})
+
 }

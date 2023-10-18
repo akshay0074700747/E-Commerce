@@ -6,34 +6,45 @@ import (
 	"ecommerce/internal/usecases"
 	"ecommerce/web/config"
 	"fmt"
-	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
-	"github.com/labstack/echo/v4"
 )
 
 var otpadapter *adapters.OtpAdapter
 
-func Otp_Gen(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+func Otp_Gen(c *gin.Context) (error, bool) {
 
-		envs,err := config.LoadEnv("EMAIL","PASSWORD")
+	config, err := config.LoadConfig()
 
-		if err != nil {
-			panic("Cannot load env files...")
+	if err != nil {
+		panic("Cannot load env files...")
+	}
+
+	smtp_username := config.EMAIL
+	smtp_password := config.PASSWORD
+
+	smtp_server := "smtp.gmail.com"
+	smtp_port := "587"
+
+	var jsondta map[string]string
+
+	if err := c.Bind(&jsondta); err != nil {
+		return err, false
+	}
+
+	if jsondta["otp"] != "" {
+
+		fmt.Println("going to next")
+		if err := Otp_Verify(jsondta["email"], jsondta["otp"]); err != nil {
+			return err, false
 		}
 
-		smtp_username := envs["EMAIL"]
-		smtp_password := envs["PASSWORD"]
+		fmt.Println("comin from the next")
 
-		smtp_server := "smtp.gmail.com"
-		smtp_port := "587"
+		return nil, true
 
-		var jsondta map[string]interface{}
-
-		if err := c.Bind(&jsondta); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid json data..."})
-		}
+	} else {
 
 		client := redis.NewClient(&redis.Options{
 			Addr:     "localhost:6379",
@@ -47,18 +58,19 @@ func Otp_Gen(next echo.HandlerFunc) echo.HandlerFunc {
 
 		if err != nil {
 			fmt.Println("Error connecting to Redis:", err)
+			return err, false
 		}
 
 		fmt.Println(pong)
 
-		email := jsondta["email"].(string)
+		email := jsondta["email"]
 
 		smtpconfig := adapters.SMTPConfig{
 			SMTPServer:   smtp_server,
 			SMTPPort:     smtp_port,
 			SMTPUsername: smtp_username,
 			SMTPPassword: smtp_password,
-			Receiver: email,
+			Receiver:     email,
 		}
 
 		otpadapter = adapters.NewOtpAdapter(client, smtpconfig)
@@ -69,40 +81,38 @@ func Otp_Gen(next echo.HandlerFunc) echo.HandlerFunc {
 
 		if err := otp.OTPRepository.SendOTP(otpstring); err != nil {
 			fmt.Println(err.Error())
+			return err, false
 		}
 
 		if err != nil {
 			fmt.Println("Error generating otp :", err)
+			return err, false
 		}
 
 		fmt.Println(otpstring)
-
-		return next(c)
 	}
+	return nil, false
 }
 
-func Otp_Verify(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+func Otp_Verify(email, otp string) error {
 
-		var jsondta map[string]interface{}
+	fmt.Println(otp)
+	fmt.Println("this issssssssssssssssssssssssssssss")
 
-		if err := c.Bind(&jsondta); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid json data..."})
-		}
+	otpstring, err := otpadapter.GetOTP(email)
 
-		email, otp := jsondta["email"], jsondta["otp"]
-
-		otpstring,err := otpadapter.GetOTP(email.(string))
-
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-
-		if otp.(string) != otpstring {
-			fmt.Println("otp doesnt match....")
-		}
-
-		return next(c)
-
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
 	}
+
+	fmt.Println("this is the retrieved otp")
+	fmt.Println(otpstring)
+
+	if otp != otpstring {
+		fmt.Println("otp doesnt match....")
+		return fmt.Errorf("otp doesnt match")
+	}
+
+	return nil
 }

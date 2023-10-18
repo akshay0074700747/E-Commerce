@@ -12,13 +12,13 @@ import (
 func UserAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		envs,err := config.LoadEnv("SECRET")
+		config, err := config.LoadConfig()
 
 		if err != nil {
 			panic("Cannot Load env files...")
 		}
 
-		secret := envs["SECRET"]
+		secret := config.SECRET
 
 		cookie, err := c.Cookie("jwtToken")
 		if err != nil {

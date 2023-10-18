@@ -1,7 +1,11 @@
 package repositories
 
-import "ecommerce/internal/entities"
+import (
+	"context"
+	helperstructs "ecommerce/web/helpers/helper_structs"
+	"ecommerce/web/helpers/responce"
+)
 
 type UserRepo interface {
-	CreateUser(user *entities.User) error
+	UserSignUp(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error)
 }

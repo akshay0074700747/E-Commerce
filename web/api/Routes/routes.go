@@ -2,29 +2,29 @@ package routes
 
 import (
 	"ecommerce/web/api/handlers"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
-type EchoEngine struct {
-	engine *echo.Echo
+type GinEngine struct {
+	engine *gin.Engine
 }
 
-func NewEchoEngine(handlers.UserHandler) *EchoEngine {
+func NewGinEngine(userhandler *handlers.UserHandler) *GinEngine {
 
-	e := echo.New()
+	engine := gin.New()
 
-	e.Use(middleware.Logger())
+	engine.Use(gin.Logger())
 
-	user := e.Group("/user")
+	user := engine.Group("/user")
 	{
-		user.POST("/signup",)
+		user.POST("/signup", userhandler.UserSignUp)
 	}
 
-	return &EchoEngine{engine: e}
+	return &GinEngine{engine: engine}
 
 }
 
-func (en *EchoEngine) Start() {
-	en.engine.Start(":3000")
+func (sh *GinEngine) Start() {
+	sh.engine.Run(":3000")
 }

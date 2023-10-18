@@ -7,13 +7,13 @@ import (
 
 func main() {
 
-	envs, err := config.LoadEnv("DATABASE_ADDR", "EMAIL", "PASSWORD", "SECRET")
+	config, err := config.LoadConfig()
 
 	if err != nil {
-		panic("Cannot connect to the database...")
+		panic(err.Error())
 	}
 
-	server,err := wireeeeeee.InitializeAPI(envs)
+	server, err := wireeeeeee.InitializeAPI1(config)
 
 	if err != nil {
 		panic("Couldnt start server")

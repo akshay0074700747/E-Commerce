@@ -32,7 +32,6 @@ func NewOtpAdapter(redisclient *redis.Client, smtpconfig SMTPConfig) *OtpAdapter
 func (otpadapter *OtpAdapter) SaveOTP(otp entities.OTP) error {
 
 	ctx := context.Background()
-
 	return otpadapter.redisClient.Set(ctx, otp.Email, otp.Value, otp.ExpiresAt).Err()
 }
 

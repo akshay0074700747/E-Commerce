@@ -1,23 +1,26 @@
 package adapters
 
 import (
-	"ecommerce/internal/entities"
+	"context"
+	"ecommerce/internal/interfaces/repositories"
+	helperstructs "ecommerce/web/helpers/helper_structs"
+	"ecommerce/web/helpers/responce"
 
 	"gorm.io/gorm"
 )
 
-type UserAdapter struct {
-	db *gorm.DB
+type userDatabase struct {
+	DB *gorm.DB
 }
 
-func NewUserAdapter(db *gorm.DB) *UserAdapter {
-
-	return &UserAdapter{db: db}
-
+func NewUserRepository(DB *gorm.DB) repositories.UserRepo {
+	return &userDatabase{DB}
 }
 
-func (useradapter *UserAdapter) CreateUser(user *entities.User) error {
-
-	return useradapter.db.Create(user).Error
-
+func (c *userDatabase) UserSignUp(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error) {
+	var userData responce.UserData
+	insertQuery := `INSERT INTO user (name,email,mobile,password)VALUES($1,$2,$3,$4) 
+					RETURNING id,name,email,mobile`
+	err := c.DB.Raw(insertQuery, user.Name, user.Email, user.Mobile, user.Password).Scan(&userData).Error
+	return userData, err
 }

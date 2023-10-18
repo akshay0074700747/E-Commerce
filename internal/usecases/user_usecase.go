@@ -1,36 +1,30 @@
 package usecases
 
 import (
-	"ecommerce/internal/entities"
+	"context"
 	"ecommerce/internal/interfaces/repositories"
-	"fmt"
-	"math/rand"
-	"time"
+	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
+	"ecommerce/web/helpers"
+	helperstructs "ecommerce/web/helpers/helper_structs"
+	"ecommerce/web/helpers/responce"
 )
 
-type UserUsecase struct {
-	user_repo repositories.UserRepo
+type userUseCase struct {
+	userRepo repositories.UserRepo
 }
 
-func NewUserUsecase(user_repo repositories.UserRepo) *UserUsecase {
-
-	return &UserUsecase{user_repo: user_repo}
-
-}
-
-func (user_usecase *UserUsecase) RegisterUser(email, password, mobile, name string) error {
-
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	id := fmt.Sprintf("%06d", r.Intn(1000000))
-
-	user := entities.User{
-		Id:       id,
-		Email:    email,
-		Password: password,
-		Mobile:   mobile,
-		Name:     name,
+func NewUserUseCase(repo repositories.UserRepo) usecasesinterface.UserUsecaseInterface {
+	return &userUseCase{
+		userRepo: repo,
 	}
+}
 
-	return user_usecase.user_repo.CreateUser(&user)
-
+func (c *userUseCase) UserSignUp(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error) {
+	hash, err := helpers.Hash_pass(user.Password)
+	if err != nil {
+		return responce.UserData{}, err
+	}
+	user.Password = string(hash)
+	userData, err := c.userRepo.UserSignUp(ctx, user)
+	return userData, err
 }

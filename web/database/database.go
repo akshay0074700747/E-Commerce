@@ -2,6 +2,8 @@ package database
 
 import (
 	"ecommerce/internal/entities"
+	"ecommerce/web/config"
+	"fmt"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,19 +13,17 @@ type Group_tables interface {
 	Migrate_me()
 }
 
-// type DBConn struct {
-// 	DB *gorm.DB
-// }
-
-func Connect_to(envs map[string]string) *gorm.DB {
+func Connect_to(config config.Config) *gorm.DB {
 
 	var db *gorm.DB
 	var err error
 
-	if db, err = gorm.Open(postgres.Open(envs["DATABASE_ADDR"]), &gorm.Config{}); err != nil {
-		panic("cannot connect to the databse...")
+	fmt.Println(config.DATABASE_ADDR)
+
+	if db, err = gorm.Open(postgres.Open(config.DATABASE_ADDR), &gorm.Config{}); err != nil {
+		panic(err.Error())
 	} else {
-		Migrte_all(db,&entities.User{})
+		Migrte_all(db, &entities.User{})
 		return db
 	}
 }
