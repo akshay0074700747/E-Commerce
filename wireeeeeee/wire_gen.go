@@ -17,11 +17,17 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeAPI1(config2 config.Config) (*routes.GinEngine, error) {
+func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
 	db := database.Connect_to(config2)
 	userRepo := adapters.NewUserRepository(db)
 	userUsecaseInterface := usecases.NewUserUseCase(userRepo)
-	userHandler := handlers.NewUserHandler(userUsecaseInterface)
-	ginEngine := routes.NewGinEngine(userHandler)
+	userHandler := handlers.NewUserHandler(config2, userUsecaseInterface)
+	adminRepo := adapters.NewAdminRepository(db)
+	adminUsecaseInterface := usecases.NewAdminUsecase(adminRepo)
+	adminHandler := handlers.NewAdminHandler(adminUsecaseInterface, config2)
+	suAdminRepo := adapters.NewSuAdminRepository(db)
+	suAdminUsecaseInterface := usecases.NewSuAdminUsecase(suAdminRepo)
+	suAdminHandler := handlers.NewSuAdminHandler(suAdminUsecaseInterface, config2)
+	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler)
 	return ginEngine, nil
 }

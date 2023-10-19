@@ -8,18 +8,20 @@ import (
 )
 
 type Payload struct {
-	Email    string
-	Password string
+	Email   string
+	Isadmin bool
+	Issuadmin bool
 	jwt.StandardClaims
 }
 
-func GenerateJwt(email, password string, secret []byte) (string, error) {
+func GenerateJwt(email string, isadmin,issuadmin bool, secret []byte) (string, error) {
 
 	expiresat := time.Now().Add(48 * time.Hour)
 
 	jwtclaims := &Payload{
-		Email:    email,
-		Password: password,
+		Email:   email,
+		Isadmin: isadmin,
+		Issuadmin: issuadmin,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiresat.Unix(),
 		},
@@ -37,41 +39,42 @@ func GenerateJwt(email, password string, secret []byte) (string, error) {
 
 }
 
-func ValidateToken(tokenstring string, secret []byte) (map[string]string, error) {
+func ValidateToken(tokenstring string, secret []byte) (map[string]interface{}, error) {
 
 	token, err := jwt.ParseWithClaims(tokenstring, &Payload{}, func(t *jwt.Token) (interface{}, error) {
 
 		if t.Method != jwt.SigningMethodHS256 {
-			return nil,fmt.Errorf("invalid token")
+			return nil, fmt.Errorf("invalid token")
 		}
 
-		return secret,nil
+		return secret, nil
 
 	})
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	if token == nil || !token.Valid {
-		return nil,fmt.Errorf("token is not valid or its empty")
+		return nil, fmt.Errorf("token is not valid or its empty")
 	}
 
-	cliams,ok := token.Claims.(*Payload)
+	cliams, ok := token.Claims.(*Payload)
 
 	if !ok {
-		return nil,fmt.Errorf("cannot parse claims")
+		return nil, fmt.Errorf("cannot parse claims")
 	}
 
-	cred := map[string]string {
-		"email" : cliams.Email,
-		"password" : cliams.Password,
+	cred := map[string]interface{}{
+		"email":   cliams.Email,
+		"isadmin": cliams.Isadmin,
+		"issuadmin": cliams.Issuadmin,
 	}
 
 	if cliams.ExpiresAt < time.Now().Unix() {
-		return nil,fmt.Errorf("token expired")
+		return nil, fmt.Errorf("token expired")
 	}
 
-	return cred,nil
+	return cred, nil
 
 }

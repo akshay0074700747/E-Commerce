@@ -23,7 +23,7 @@ func Connect_to(config config.Config) *gorm.DB {
 	if db, err = gorm.Open(postgres.Open(config.DATABASE_ADDR), &gorm.Config{}); err != nil {
 		panic(err.Error())
 	} else {
-		Migrte_all(db, &entities.User{})
+		Migrte_all(db, &entities.User{},&entities.Admins{},&entities.SuperAdmins{})
 		return db
 	}
 }

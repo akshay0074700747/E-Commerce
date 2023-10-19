@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 )
 
-func UserAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
+func UserAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		config, err := config.LoadConfig()
 
 		if err != nil {
@@ -20,10 +19,12 @@ func UserAuth(next echo.HandlerFunc) echo.HandlerFunc {
 
 		secret := config.SECRET
 
-		cookie, err := c.Cookie("jwtToken")
+		cookie, err := c.Request.Cookie("jwtToken")
 		if err != nil {
 			fmt.Println("Cookie cannot be retrieved ...")
-			return err
+			c.JSON(http.StatusUnauthorized, "Cookie cannot be retrieved ...")
+			c.Abort()
+			return
 		}
 
 		cookieString := cookie.Value
@@ -31,12 +32,11 @@ func UserAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		values, err := jwt.ValidateToken(cookieString, []byte(secret)) // Replace with your validation logic
 
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, err.Error())
+			c.JSON(http.StatusUnauthorized, err.Error())
+			c.Abort()
+			return
 		}
 
-		// Store the 'values' in context
 		c.Set("values", values)
-
-		return next(c)
 	}
 }

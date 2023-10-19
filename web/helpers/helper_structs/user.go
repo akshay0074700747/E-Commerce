@@ -5,4 +5,5 @@ type UserReq struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Mobile   string `json:"mobile"`
+	Otp      string `json:"otp"`
 }

@@ -4,16 +4,21 @@ import (
 	"context"
 	"ecommerce/internal/adapters"
 	"ecommerce/internal/usecases"
+
 	"ecommerce/web/config"
 	"fmt"
+	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 )
 
 var otpadapter *adapters.OtpAdapter
 
-func Otp_Gen(c *gin.Context) (error, bool) {
+func Otp_Gen(email string) error {
+
+	if emailval := strings.HasSuffix(email, "@gmail.com"); !emailval {
+		return fmt.Errorf("this is not a valid email")
+	}
 
 	config, err := config.LoadConfig()
 
@@ -24,77 +29,63 @@ func Otp_Gen(c *gin.Context) (error, bool) {
 	smtp_username := config.EMAIL
 	smtp_password := config.PASSWORD
 
+	// smtp_username := "akshay8547104@gmail.com"
+	// smtp_password := "fqih bpdj fxrr obdp"
+
 	smtp_server := "smtp.gmail.com"
 	smtp_port := "587"
 
-	var jsondta map[string]string
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
 
-	if err := c.Bind(&jsondta); err != nil {
-		return err, false
+	ctx := context.Background()
+
+	pong, err := client.Ping(ctx).Result()
+
+	if err != nil {
+		fmt.Println("Error connecting to Redis:", err)
+		return err
 	}
 
-	if jsondta["otp"] != "" {
+	fmt.Println(pong)
 
-		fmt.Println("going to next")
-		if err := Otp_Verify(jsondta["email"], jsondta["otp"]); err != nil {
-			return err, false
-		}
-
-		fmt.Println("comin from the next")
-
-		return nil, true
-
-	} else {
-
-		client := redis.NewClient(&redis.Options{
-			Addr:     "localhost:6379",
-			Password: "",
-			DB:       0,
-		})
-
-		ctx := context.Background()
-
-		pong, err := client.Ping(ctx).Result()
-
-		if err != nil {
-			fmt.Println("Error connecting to Redis:", err)
-			return err, false
-		}
-
-		fmt.Println(pong)
-
-		email := jsondta["email"]
-
-		smtpconfig := adapters.SMTPConfig{
-			SMTPServer:   smtp_server,
-			SMTPPort:     smtp_port,
-			SMTPUsername: smtp_username,
-			SMTPPassword: smtp_password,
-			Receiver:     email,
-		}
-
-		otpadapter = adapters.NewOtpAdapter(client, smtpconfig)
-
-		otp := usecases.NewOtpUseCase(otpadapter)
-
-		otpstring, err := otp.GenerateOtp(email)
-
-		if err := otp.OTPRepository.SendOTP(otpstring); err != nil {
-			fmt.Println(err.Error())
-			return err, false
-		}
-
-		if err != nil {
-			fmt.Println("Error generating otp :", err)
-			return err, false
-		}
-
-		fmt.Println(otpstring)
+	smtpconfig := adapters.SMTPConfig{
+		SMTPServer:   smtp_server,
+		SMTPPort:     smtp_port,
+		SMTPUsername: smtp_username,
+		SMTPPassword: smtp_password,
+		Receiver:     email,
 	}
-	return nil, false
+
+	otpadapter = adapters.NewOtpAdapter(client, smtpconfig)
+
+	otp := usecases.NewOtpUseCase(otpadapter)
+
+	otpstring, err := otp.GenerateOtp(email)
+
+	if err := otp.OTPRepository.SendOTP(otpstring); err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+
+	if err != nil {
+		fmt.Println("Error generating otp :", err)
+		return err
+	}
+
+	fmt.Println(otpstring)
+
+	return nil
 }
 
-func Otp_Verify(email, otp string) error {
+func Otp_Verify(email, otp string) (error, bool) {
+
+	if emailval := strings.HasSuffix(email, "@gmail.com"); !emailval {
+		return fmt.Errorf("this is not a valid email"), false
+	}
 
 	fmt.Println(otp)
 	fmt.Println("this issssssssssssssssssssssssssssss")
@@ -103,7 +94,7 @@ func Otp_Verify(email, otp string) error {
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return err
+		return err, false
 	}
 
 	fmt.Println("this is the retrieved otp")
@@ -111,8 +102,8 @@ func Otp_Verify(email, otp string) error {
 
 	if otp != otpstring {
 		fmt.Println("otp doesnt match....")
-		return fmt.Errorf("otp doesnt match")
+		return fmt.Errorf("otp doesnt match"), false
 	}
 
-	return nil
+	return nil, true
 }

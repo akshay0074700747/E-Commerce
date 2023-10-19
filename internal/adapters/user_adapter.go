@@ -1,10 +1,10 @@
 package adapters
 
 import (
-	"context"
 	"ecommerce/internal/interfaces/repositories"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -17,10 +17,10 @@ func NewUserRepository(DB *gorm.DB) repositories.UserRepo {
 	return &userDatabase{DB}
 }
 
-func (c *userDatabase) UserSignUp(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error) {
+func (c *userDatabase) UserSignUp(user helperstructs.UserReq) (responce.UserData, error) {
 	var userData responce.UserData
-	insertQuery := `INSERT INTO user (name,email,mobile,password)VALUES($1,$2,$3,$4) 
+	insertQuery := `INSERT INTO users (name,email,mobile,password,created_at)VALUES($1,$2,$3,$4,$5) 
 					RETURNING id,name,email,mobile`
-	err := c.DB.Raw(insertQuery, user.Name, user.Email, user.Mobile, user.Password).Scan(&userData).Error
+	err := c.DB.Raw(insertQuery, user.Name, user.Email, user.Mobile, user.Password, time.Now()).Scan(&userData).Error
 	return userData, err
 }

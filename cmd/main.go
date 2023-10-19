@@ -13,7 +13,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	server, err := wireeeeeee.InitializeAPI1(config)
+	server, err := wireeeeeee.InitializeAPI(config)
 
 	if err != nil {
 		panic("Couldnt start server")
