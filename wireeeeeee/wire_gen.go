@@ -28,6 +28,9 @@ func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
 	suAdminRepo := adapters.NewSuAdminRepository(db)
 	suAdminUsecaseInterface := usecases.NewSuAdminUsecase(suAdminRepo)
 	suAdminHandler := handlers.NewSuAdminHandler(suAdminUsecaseInterface, config2)
-	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler)
+	categoryRepo := adapters.NewCategoryRepository(db)
+	categoryUsecaseInterface := usecases.NewCategoryUsecase(categoryRepo)
+	categoryHandler := handlers.NewCategoryHandler(categoryUsecaseInterface)
+	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler, categoryHandler)
 	return ginEngine, nil
 }

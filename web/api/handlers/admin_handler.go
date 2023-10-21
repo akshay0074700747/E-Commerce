@@ -73,3 +73,49 @@ func (ad *AdminHandler) Login(c *gin.Context) {
 	})
 
 }
+
+func (ad *AdminHandler) GetAllUsers(c *gin.Context)  {
+	
+	usersdata,err := ad.AdminUsecase.GetUsers(c)
+
+	if err != nil {
+		c.JSON(http.StatusNoContent, responce.Response{
+			StatusCode: 204,
+			Message:    "couldn't get all the usesers...",
+			Data:       usersdata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Fetched all the users successfully",
+		Data:       usersdata,
+		Errors:     nil,
+	})
+
+}
+
+func (ad *AdminHandler) ReportUser(c *gin.Context)  {
+
+	email := c.Param("email")
+
+	if err := ad.AdminUsecase.Reportuser(c.Request.Context(),email); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "couldn't report the user",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Reported User Successfully",
+		Data:       nil,
+		Errors:     nil,
+	})
+
+}

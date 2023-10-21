@@ -13,7 +13,8 @@ type GinEngine struct {
 
 func NewGinEngine(userhandler *handlers.UserHandler,
 	adminhandler *handlers.AdminHandler,
-	suadminhandler *handlers.SuAdminHandler) *GinEngine {
+	suadminhandler *handlers.SuAdminHandler,
+	cathandler *handlers.CategoryHandler) *GinEngine {
 
 	engine := gin.New()
 
@@ -22,17 +23,25 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	user := engine.Group("/user")
 	{
 		user.POST("/signup", userhandler.UserSignUp)
+		user.POST("/login", userhandler.UserLogin)
 	}
+
+	engine.POST("/admin/login",adminhandler.Login)
 
 	admin := engine.Group("/admin")
+	admin.Use(middlewares.UserAuth(),middlewares.AdminAuth())
 	{
-		admin.POST("/login", adminhandler.Login)
+		admin.GET("/users", adminhandler.GetAllUsers)
+		admin.POST("/report/:email" , adminhandler.ReportUser)
 	}
 
+	engine.POST("/suadmin/login",suadminhandler.Login)
+
 	suadmin := engine.Group("/suadmin")
+	suadmin.Use(middlewares.UserAuth(),middlewares.SuAdminAuth())
 	{
-		suadmin.POST("/login", suadminhandler.Login)
-		suadmin.POST("/createadmin", middlewares.UserAuth(), suadminhandler.CreateAdmin)
+		suadmin.POST("/createadmin", suadminhandler.CreateAdmin)
+		suadmin.POST("/block/:email", suadminhandler.BlockUser)
 	}
 
 	return &GinEngine{engine: engine}

@@ -100,7 +100,7 @@ func (cr *UserHandler) UserSignUp(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("JwtToken", jwt, 3600, "/", "localhost", false, false)
+	c.SetCookie("jwtToken", jwt, 3600, "/", "localhost", false, false)
 
 	fmt.Println(jwt)
 
@@ -111,4 +111,52 @@ func (cr *UserHandler) UserSignUp(c *gin.Context) {
 		Errors:     nil,
 	})
 
+}
+
+func (cr *UserHandler) UserLogin(c *gin.Context) {
+
+	var req helperstructs.UserReq
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't Bind",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	userdta, err := cr.userUseCase.UserLogin(c.Request.Context(), req)
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, responce.Response{
+			StatusCode: 401,
+			Message:    "couldn't login",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	jwt, err := jwt.GenerateJwt(userdta.Email, false, false, []byte(cr.config.SECRET))
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldn't generate jwt",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.SetCookie("jwtToken", jwt, 3600, "/", "localhost", false, true)
+
+	c.JSON(http.StatusAccepted, responce.Response{
+		StatusCode: 202,
+		Message:    "super admin logged in successfully",
+		Data:       userdta,
+		Errors:     nil,
+	})
 }

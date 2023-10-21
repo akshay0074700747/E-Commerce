@@ -6,5 +6,7 @@ import (
 )
 
 type AdminRepo interface {
-	GetByEmail(admin helperstructs.AdminReq) (responce.AdminData,error)
+	GetByEmail(admin helperstructs.AdminReq) (responce.AdminData, error)
+	GetAllUsers() ([]responce.AdminsideUsersData, error)
+	ReportUser(email string) (error)
 }

@@ -23,3 +23,15 @@ func (admin *AdminUsecase) AdminLogin(ctx context.Context, adminreq helperstruct
 	return admin.AdminRepo.GetByEmail(adminreq)
 
 }
+
+func (admin *AdminUsecase) GetUsers(ctx context.Context) ([]responce.AdminsideUsersData,error) {
+
+	return admin.AdminRepo.GetAllUsers()
+
+}
+
+func (admin *AdminUsecase) Reportuser(ctx context.Context, email string) (error) {
+
+	return admin.AdminRepo.ReportUser(email)
+	
+}

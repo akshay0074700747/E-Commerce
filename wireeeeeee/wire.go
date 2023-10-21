@@ -13,16 +13,19 @@ import (
 
 func InitializeAPI1(config config.Config) (*routes.GinEngine, error) {
 
-	wire.Build(database.Connect_to, 
-		adapters.NewUserRepository, 
+	wire.Build(database.Connect_to,
+		adapters.NewUserRepository,
 		adapters.NewAdminRepository,
 		adapters.NewSuAdminRepository,
-		usecases.NewUserUseCase, 
+		adapters.NewCategoryRepository,
+		usecases.NewUserUseCase,
 		usecases.NewAdminUsecase,
 		usecases.NewSuAdminUsecase,
-		handlers.NewUserHandler, 
+		usecases.NewCategoryUsecase,
+		handlers.NewUserHandler,
 		handlers.NewAdminHandler,
 		handlers.NewSuAdminHandler,
+		handlers.NewCategoryHandler,
 		routes.NewGinEngine)
 
 	return &routes.GinEngine{}, nil

@@ -9,4 +9,5 @@ import (
 type SuAdminUsecaseInterface interface {
 	SuAdminLogin(ctx context.Context, suadmin helperstructs.SuAdminReq) (responce.SuAdminData, error)
 	CreateAdmin(ctx context.Context, admin helperstructs.AdminReq) (responce.AdminData, error)
+	BlockUser(ctx context.Context,email string) (error)
 }

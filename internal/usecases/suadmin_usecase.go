@@ -30,3 +30,11 @@ func (supadmin *SuAdminUsecase) CreateAdmin(ctx context.Context, admin helperstr
 
 
 }
+
+func (supadmin *SuAdminUsecase) BlockUser(ctx context.Context,email string) (error) {
+	
+	return supadmin.SuAdminRepo.BlockUser(email)
+
+}
+
+

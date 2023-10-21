@@ -8,4 +8,5 @@ import (
 
 type UserUsecaseInterface interface {
 	UserSignUp(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error)
+	UserLogin(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error)
 }

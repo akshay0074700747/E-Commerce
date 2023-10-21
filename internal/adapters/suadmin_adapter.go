@@ -21,7 +21,7 @@ func (suadmn *SuAdminDataBase) GetByEmail(suadmin helperstructs.SuAdminReq) (res
 
 	var suadmndta responce.SuAdminData
 
-	selectquery := `SELECT * FROM superadmins WHERE email = $1`
+	selectquery := `SELECT * FROM super_admins WHERE email = $1`
 
 	err := suadmn.DB.Raw(selectquery, suadmin.Email).Scan(&suadmndta).Error
 
@@ -37,5 +37,13 @@ func (suadmn *SuAdminDataBase) CreateAdmin(admin helperstructs.AdminReq) (respon
 	err := suadmn.DB.Raw(insertquery, admin.Email, admin.Password, admin.Name, time.Now()).Scan(&admindata).Error
 
 	return admindata, err
+
+}
+
+func (suadmn *SuAdminDataBase) BlockUser(email string) error {
+
+	updatequery := `UPDATE users SET isblocked = NOT isblocked,unblock_time = NOW() + INTERVAL '1 day' WHERE email = $1`
+
+	return suadmn.DB.Exec(updatequery, email).Error
 
 }

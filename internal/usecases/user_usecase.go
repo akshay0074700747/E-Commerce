@@ -7,6 +7,7 @@ import (
 	"ecommerce/web/helpers"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 )
 
 type userUseCase struct {
@@ -14,7 +15,7 @@ type userUseCase struct {
 }
 
 func NewUserUseCase(repo repositories.UserRepo) usecasesinterface.UserUsecaseInterface {
-	
+
 	return &userUseCase{
 		userRepo: repo,
 	}
@@ -29,8 +30,24 @@ func (c *userUseCase) UserSignUp(ctx context.Context, user helperstructs.UserReq
 	}
 
 	user.Password = string(hash)
-	
+
 	userData, err := c.userRepo.UserSignUp(user)
-	
+
 	return userData, err
+}
+
+func (c *userUseCase) UserLogin(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error) {
+
+      userdata,err :=  c.userRepo.GetByEmail(user)
+
+	  if err != nil {
+		return userdata,err
+	  }
+
+	  if userdata.Email == "" {
+		return userdata,fmt.Errorf("you have been blocked")
+	  }
+
+	  return userdata,nil
+
 }

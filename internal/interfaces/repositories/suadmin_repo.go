@@ -8,4 +8,5 @@ import (
 type SuAdminRepo interface {
 	GetByEmail(suadmin helperstructs.SuAdminReq) (responce.SuAdminData,error)
 	CreateAdmin(admin helperstructs.AdminReq) (responce.AdminData, error)
+	BlockUser(email string) (error)
 }

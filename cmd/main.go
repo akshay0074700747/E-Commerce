@@ -2,6 +2,8 @@ package main
 
 import (
 	"ecommerce/web/config"
+	cronejobs "ecommerce/web/crone_jobs"
+	"ecommerce/web/database"
 	"ecommerce/wireeeeeee"
 )
 
@@ -19,6 +21,11 @@ func main() {
 		panic("Couldnt start server")
 	}
 
+	cronedb := database.Connect_to(config)
+
+	unblock_crone := cronejobs.NewUnblockUsers(cronedb)
+
 	server.Start()
+	unblock_crone.Start()
 
 }
