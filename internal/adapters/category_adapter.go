@@ -22,7 +22,7 @@ func (cat *CategoryDataBase) CreateCategory(catreq helperstructs.CategoryReq) (r
 
 	var catdata responce.CategoryData
 
-	insertquery := `INSERT INTO categories (category,sub_category,update_by) VALUES ($1,$2,$3)
+	insertquery := `INSERT INTO categories (category,sub_category,updated_by) VALUES ($1,$2,$3)
 	 RETURNING id,category,sub_category,updated_by`
 
 	err := cat.DB.Raw(insertquery, catreq.Category, catreq.SubCategory, catreq.UpdatedBy).Scan(&catdata).Error
@@ -45,9 +45,15 @@ func (cat *CategoryDataBase) UpdateCategory(catreq helperstructs.CategoryReq) (r
 
 func (cat *CategoryDataBase) DeleteCategory(category_id uint) error {
 
-	deletequery := `DELETE FROM categories WHERE id = $1`
+	updatequery := `UPDATE products SET is_active = false,category = NULL WHERE category = $1;`
 
-	return cat.DB.Raw(deletequery, category_id).Error
+	deletequery := `DELETE FROM categories WHERE id = $1;`
+
+	if err := cat.DB.Exec(updatequery, category_id).Error; err != nil {
+		return err
+	}
+
+	return cat.DB.Exec(deletequery, category_id).Error
 
 }
 

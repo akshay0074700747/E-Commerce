@@ -31,6 +31,9 @@ func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
 	categoryRepo := adapters.NewCategoryRepository(db)
 	categoryUsecaseInterface := usecases.NewCategoryUsecase(categoryRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryUsecaseInterface)
-	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler, categoryHandler)
+	productsRepo := adapters.NewProductDataBase(db)
+	productUsecaseInterface := usecases.NewProductUsecases(productsRepo)
+	productHandler := handlers.NewProductHandler(productUsecaseInterface)
+	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler, categoryHandler, productHandler)
 	return ginEngine, nil
 }

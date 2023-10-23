@@ -1,24 +1,23 @@
 package entities
 
+import "time"
+
+type RelatedProductSlice []int
+
 type Products struct {
-	ID uint `gorm:"primaryKey;unique;not null"`
-	Category    Categories `gorm:"foreignKey:categories_id"`
-	Brand Brands `gorm:"foreignKey:brands_id"`
-	Name string
-	Description string
-	RelatedProducts []uint
+	ID               uint `gorm:"primaryKey;unique;not null"`
+	Category         uint
+	Brand            uint
+	Name             string
+	Description      string
+	Price            int
+	Stock            int
+	Specifications   map[string]interface{} `gorm:"type:jsonb"`
+	IsActive         bool                   `gorm:"default:true"`
+	RelativeProducts []uint
+	UpdatedAt        time.Time
+	UpdatedBy        string `gorm:"not null"`
 }
 
 func (product *Products) Migrate_me() {
-}
-
-type Product_Details struct {
-	ID uint `gorm:"primaryKey;unique;not null"`
-	Product Products `gorm:"foreignKey:products_id"`
-	Price int
-	Stock int
-	IsAcive bool `gorm:"default:true"`
-}
-
-func (details *Product_Details) Migrate_me() {
 }

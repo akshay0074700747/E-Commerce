@@ -4,30 +4,25 @@ import (
 	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type CategoryHandler struct {
-	CategoryUsecase usecasesinterface.CategoryUsecaseInterface
+type BrandHandler struct {
+	BrandUsecase usecasesinterface.BrandUsecaseInterface
 }
 
-func NewCategoryHandler(usecase usecasesinterface.CategoryUsecaseInterface) *CategoryHandler {
+func NewBrandHandler(usecase usecasesinterface.BrandUsecaseInterface) *BrandHandler {
 
-	return &CategoryHandler{CategoryUsecase: usecase}
+	return &BrandHandler{BrandUsecase: usecase}
 
 }
 
-func (cat *CategoryHandler) CreateCategory(c *gin.Context) {
+func (brand *BrandHandler) CreateBrand(c *gin.Context) {
 
-	value, _ := c.Get("values")
-
-	valueMap, _ := value.(map[string]interface{})
-
-	var req helperstructs.CategoryReq
+	var req helperstructs.BrandReq
 
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, responce.Response{
@@ -39,15 +34,13 @@ func (cat *CategoryHandler) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	req.UpdatedBy = valueMap["email"].(string)
-
-	catdata, err := cat.CategoryUsecase.CreateCategory(c, req)
+	branddata, err := brand.BrandUsecase.CreateBrand(c, req)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responce.Response{
 			StatusCode: 500,
-			Message:    "an error occcured while creating category",
-			Data:       catdata,
+			Message:    "an error occcured while creating brand",
+			Data:       branddata,
 			Errors:     err.Error(),
 		})
 		return
@@ -55,18 +48,16 @@ func (cat *CategoryHandler) CreateCategory(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, responce.Response{
 		StatusCode: 201,
-		Message:    "Category created Successfully",
-		Data:       catdata,
+		Message:    "brand created Successfully",
+		Data:       branddata,
 		Errors:     nil,
 	})
 
 }
 
-func (cat *CategoryHandler) DeleteCategory(c *gin.Context) {
+func (brand *BrandHandler) DeleteBrand(c *gin.Context) {
 
 	id := c.Param("id")
-
-	fmt.Println(id)
 
 	u, err := strconv.ParseUint(id, 10, 0)
 
@@ -80,10 +71,10 @@ func (cat *CategoryHandler) DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	if err := cat.CategoryUsecase.DeleteCategory(c, uint(u)); err != nil {
+	if err := brand.BrandUsecase.DeleteBrand(c, uint(u)); err != nil {
 		c.JSON(http.StatusNotModified, responce.Response{
 			StatusCode: 304,
-			Message:    "Could not delete the category",
+			Message:    "Could not delete the brand",
 			Data:       nil,
 			Errors:     err.Error(),
 		})
@@ -92,20 +83,16 @@ func (cat *CategoryHandler) DeleteCategory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, responce.Response{
 		StatusCode: 200,
-		Message:    "Deleted the category",
+		Message:    "Deleted the brand",
 		Data:       nil,
 		Errors:     nil,
 	})
 
 }
 
-func (cat *CategoryHandler) UpdateCategory(c *gin.Context) {
+func (brand *BrandHandler) UpdateBrand(c *gin.Context) {
 
-	value, _ := c.Get("values")
-
-	valueMap, _ := value.(map[string]interface{})
-
-	var req helperstructs.CategoryReq
+	var req helperstructs.BrandReq
 
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, responce.Response{
@@ -117,15 +104,13 @@ func (cat *CategoryHandler) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	req.UpdatedBy = valueMap["email"].(string)
-
-	catdata, err := cat.CategoryUsecase.UpdateCategory(c, req)
+	branddata, err := brand.BrandUsecase.UpdateBrand(c, req)
 
 	if err != nil {
 		c.JSON(http.StatusNotModified, responce.Response{
 			StatusCode: 304,
-			Message:    "Coouldnt update the category",
-			Data:       catdata,
+			Message:    "Coouldnt update the brandegory",
+			Data:       branddata,
 			Errors:     err.Error(),
 		})
 		return
@@ -133,22 +118,22 @@ func (cat *CategoryHandler) UpdateCategory(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, responce.Response{
 		StatusCode: 201,
-		Message:    "Category updated successfully",
-		Data:       catdata,
+		Message:    "brandegory updated successfully",
+		Data:       branddata,
 		Errors:     nil,
 	})
 
 }
 
-func (cat *CategoryHandler) GetAllCategories(c *gin.Context) {
+func (brand *BrandHandler) GetAllbrandegories(c *gin.Context) {
 
-	catdata, err := cat.CategoryUsecase.GetAllCategories(c)
+	branddata, err := brand.BrandUsecase.GetallBrand(c)
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{
 			StatusCode: 503,
-			Message:    "Coouldnt get all the categories",
-			Data:       catdata,
+			Message:    "Coouldnt get all the brand",
+			Data:       branddata,
 			Errors:     err.Error(),
 		})
 		return
@@ -156,8 +141,8 @@ func (cat *CategoryHandler) GetAllCategories(c *gin.Context) {
 
 	c.JSON(http.StatusOK, responce.Response{
 		StatusCode: 200,
-		Message:    "Loaded all the categories",
-		Data:       catdata,
+		Message:    "Loaded all the brands",
+		Data:       branddata,
 		Errors:     nil,
 	})
 

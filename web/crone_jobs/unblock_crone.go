@@ -17,13 +17,15 @@ func NewUnblockUsers(db *gorm.DB) *UnblockUsers {
 
 }
 
-func (un *UnblockUsers) Start()  {
-	
+func (un *UnblockUsers) Start() {
+
 	c := cron.New()
 
-	_,err := c.AddFunc("*/5 * * * * *",func() {
+	_, err := c.AddFunc("*/5 * * * * *", func() {
 
 		un.DB.Raw(`UPDATE users SET isblocked = false WHERE unblock_time > NOW();`)
+
+		fmt.Println("croneeee woooorked.........................................")
 
 	})
 

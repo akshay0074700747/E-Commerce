@@ -67,7 +67,7 @@ func (ad *AdminHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusAccepted, responce.Response{
 		StatusCode: 202,
-		Message:    "super admin logged in successfully",
+		Message:    "admin logged in successfully",
 		Data:       admindta,
 		Errors:     nil,
 	})

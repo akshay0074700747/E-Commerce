@@ -1,7 +1,7 @@
 package entities
 
 type Brands struct {
-	ID uint `gorm:"primaryKey;unique;not null"`
+	ID   uint   `gorm:"primaryKey;unique;not null"`
 	Name string `gorm:"not null"`
 }
 

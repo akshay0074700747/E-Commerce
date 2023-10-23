@@ -29,8 +29,7 @@ func Connect_to(config config.Config) *gorm.DB {
 			&entities.SuperAdmins{},
 			&entities.Brands{},
 			&entities.Categories{},
-			&entities.Products{},
-			&entities.Product_Details{},
+			// &entities.Products{},
 			&entities.Comments{},
 			&entities.Discount{},
 			&entities.Review{})
