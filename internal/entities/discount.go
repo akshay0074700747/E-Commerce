@@ -5,8 +5,8 @@ import "time"
 type Discount struct {
 	ID        uint `gorm:"primaryKey;unique;not null"`
 	Category  uint
-	Discount  float32 `gorm:"not null"`
-	StartDate time.Time
+	Discount  float32   `gorm:"not null"`
+	StartDate time.Time `gorm:"default:NOW()"`
 	EndDate   time.Time
 }
 

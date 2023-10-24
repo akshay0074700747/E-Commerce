@@ -22,3 +22,11 @@ type BrandData struct {
 	ID   uint   `json:"id"`
 	Name string `json:"name"`
 }
+
+type DiscountData struct {
+	ID        uint      `json:"id"`
+	Category  uint      `json:"category_id"`
+	Discount  float32   `json:"discount"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+}

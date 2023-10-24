@@ -15,7 +15,9 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	adminhandler *handlers.AdminHandler,
 	suadminhandler *handlers.SuAdminHandler,
 	cathandler *handlers.CategoryHandler,
-	prodhandler *handlers.ProductHandler) *GinEngine {
+	prodhandler *handlers.ProductHandler,
+	brandhandler *handlers.BrandHandler,
+	dischandler *handlers.DiscountHandler) *GinEngine {
 
 	engine := gin.New()
 

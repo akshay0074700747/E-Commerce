@@ -1,5 +1,7 @@
 package helperstructs
 
+import "time"
+
 type ProductReq struct {
 	ID              uint                   `json:"id"`
 	Category        uint                   `json:"category_id"`
@@ -17,4 +19,11 @@ type ProductReq struct {
 type BrandReq struct {
 	ID   uint   `json:"id"`
 	Name string `json:"name"`
+}
+
+type DiscountReq struct {
+	ID       uint      `json:"id"`
+	Category uint      `json:"category_id"`
+	Discount float32   `json:"discount"`
+	EndDate  time.Time `json:"end_date"`
 }

@@ -26,12 +26,16 @@ func (OtpUseCase *OtpUseCase) GenerateOtp(email string) (string, error) {
 
 	otpstring := fmt.Sprintf("%06d", r.Intn(1000000))
 
-	duration := 5 * time.Minute
+	duration := 1 * time.Minute
 
 	otp := entities.OTP{
 		Value:     otpstring,
 		Email:     email,
 		ExpiresAt: duration,
+	}
+
+	if otpcheck, err := OtpUseCase.OTPRepository.GetOTP(email); otpcheck != "" || err == nil {
+		return "", fmt.Errorf("retry after 1 minute")
 	}
 
 	if err := OtpUseCase.OTPRepository.SaveOTP(otp); err != nil {

@@ -19,16 +19,22 @@ func InitializeAPI1(config config.Config) (*routes.GinEngine, error) {
 		adapters.NewSuAdminRepository,
 		adapters.NewCategoryRepository,
 		adapters.NewProductDataBase,
+		adapters.NewBrandRepository,
+		adapters.NewDiscountAdapter,
 		usecases.NewUserUseCase,
 		usecases.NewAdminUsecase,
 		usecases.NewSuAdminUsecase,
 		usecases.NewCategoryUsecase,
 		usecases.NewProductUsecases,
+		usecases.NewBrandUsecase,
+		usecases.NewDiscountUsecase,
 		handlers.NewUserHandler,
 		handlers.NewAdminHandler,
 		handlers.NewSuAdminHandler,
 		handlers.NewCategoryHandler,
 		handlers.NewProductHandler,
+		handlers.NewBrandHandler,
+		handlers.NewDiscountHandler,
 		routes.NewGinEngine)
 
 	return &routes.GinEngine{}, nil
