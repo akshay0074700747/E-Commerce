@@ -21,9 +21,15 @@ func (un *UnblockUsers) Start() {
 
 	c := cron.New()
 
-	_, err := c.AddFunc("*/5 * * * * *", func() {
+	_, err := c.AddFunc("*/5 * * * *", func() {
 
-		un.DB.Raw(`UPDATE users SET isblocked = false WHERE unblock_time > NOW();`)
+		if err := un.DB.Exec(`UPDATE users SET isblocked = false WHERE unblock_time < NOW();`).Error; err != nil {
+			fmt.Println(err.Error())
+		}
+
+		if err := un.DB.Exec(`UPDATE admins SET isblocked = false WHERE unblock_time < NOW();`).Error; err != nil {
+			fmt.Println(err.Error())
+		}
 
 		fmt.Println("croneeee woooorked.........................................")
 

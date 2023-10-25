@@ -74,9 +74,9 @@ func (ad *AdminHandler) Login(c *gin.Context) {
 
 }
 
-func (ad *AdminHandler) GetAllUsers(c *gin.Context)  {
-	
-	usersdata,err := ad.AdminUsecase.GetUsers(c)
+func (ad *AdminHandler) GetAllUsers(c *gin.Context) {
+
+	usersdata, err := ad.AdminUsecase.GetUsers(c)
 
 	if err != nil {
 		c.JSON(http.StatusNoContent, responce.Response{
@@ -97,11 +97,25 @@ func (ad *AdminHandler) GetAllUsers(c *gin.Context)  {
 
 }
 
-func (ad *AdminHandler) ReportUser(c *gin.Context)  {
+func (ad *AdminHandler) ReportUser(c *gin.Context) {
 
 	email := c.Param("email")
 
-	if err := ad.AdminUsecase.Reportuser(c.Request.Context(),email); err != nil {
+	var req helperstructs.ReportReq
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't bind",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	req.Email = email
+
+	if err := ad.AdminUsecase.Reportuser(c.Request.Context(), req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, responce.Response{
 			StatusCode: 422,
 			Message:    "couldn't report the user",
@@ -115,6 +129,31 @@ func (ad *AdminHandler) ReportUser(c *gin.Context)  {
 		StatusCode: 200,
 		Message:    "Reported User Successfully",
 		Data:       nil,
+		Errors:     nil,
+	})
+
+}
+
+func (ad *AdminHandler) GetUser(c *gin.Context) {
+
+	email := c.Param("email")
+
+	userdata, err := ad.AdminUsecase.GetUser(c, email)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldn't get the user",
+			Data:       userdata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrieved User Successfully",
+		Data:       userdata,
 		Errors:     nil,
 	})
 

@@ -14,14 +14,14 @@ import (
 )
 
 type UserHandler struct {
-	userUseCase usecasesinterface.UserUsecaseInterface
-	config      config.Config
+	UserUseCase usecasesinterface.UserUsecaseInterface
+	Config      config.Config
 }
 
 func NewUserHandler(config config.Config, usecase usecasesinterface.UserUsecaseInterface) *UserHandler {
 	return &UserHandler{
-		userUseCase: usecase,
-		config:      config,
+		UserUseCase: usecase,
+		Config:      config,
 	}
 }
 
@@ -77,7 +77,7 @@ func (cr *UserHandler) UserSignUp(c *gin.Context) {
 		}
 	}
 
-	userData, err := cr.userUseCase.UserSignUp(c.Request.Context(), user)
+	userData, err := cr.UserUseCase.UserSignUp(c.Request.Context(), user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responce.Response{
 			StatusCode: 400,
@@ -88,7 +88,7 @@ func (cr *UserHandler) UserSignUp(c *gin.Context) {
 		return
 	}
 
-	jwt, err := jwt.GenerateJwt(user.Email, false, false, []byte(cr.config.SECRET))
+	jwt, err := jwt.GenerateJwt(user.Email, false, false, []byte(cr.Config.SECRET))
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responce.Response{
@@ -127,7 +127,7 @@ func (cr *UserHandler) UserLogin(c *gin.Context) {
 		return
 	}
 
-	userdta, err := cr.userUseCase.UserLogin(c.Request.Context(), req)
+	userdta, err := cr.UserUseCase.UserLogin(c.Request.Context(), req)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, responce.Response{
@@ -139,7 +139,7 @@ func (cr *UserHandler) UserLogin(c *gin.Context) {
 		return
 	}
 
-	jwt, err := jwt.GenerateJwt(userdta.Email, false, false, []byte(cr.config.SECRET))
+	jwt, err := jwt.GenerateJwt(userdta.Email, false, false, []byte(cr.Config.SECRET))
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responce.Response{

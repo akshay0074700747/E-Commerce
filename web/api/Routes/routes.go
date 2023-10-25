@@ -23,10 +23,15 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 
 	engine.Use(gin.Logger())
 
+	engine.POST("/user/login", userhandler.UserLogin)
+	engine.POST("/user/signup", userhandler.UserSignUp)
+
 	user := engine.Group("/user")
+	user.Use(middlewares.UserAuth())
 	{
-		user.POST("/signup", userhandler.UserSignUp)
-		user.POST("/login", userhandler.UserLogin)
+		user.GET("/products", prodhandler.GetProducts)
+		user.GET("/products/:category", prodhandler.FilterByCategory)
+		user.GET("/products/:category/:sub", prodhandler.FilterByCategoryAndSub)
 	}
 
 	engine.POST("/admin/login", adminhandler.Login)
@@ -44,6 +49,10 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		admin.POST("/products/add", prodhandler.AddProduct)
 		admin.PATCH("/products/update", prodhandler.UpdateProducts)
 		admin.DELETE("/products/delete/:id", prodhandler.DeleteProduct)
+		admin.GET("/discounts", dischandler.GetAllDiscounts)
+		admin.POST("discounts/add", dischandler.AddDiscount)
+		admin.DELETE("/discounts/delete/:id", dischandler.DeleteDiscount)
+		admin.PATCH("/discounts/update/:id", dischandler.UpdateDiscount)
 	}
 
 	engine.POST("/suadmin/login", suadminhandler.Login)
@@ -53,6 +62,10 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	{
 		suadmin.POST("/createadmin", suadminhandler.CreateAdmin)
 		suadmin.POST("/block/:email", suadminhandler.BlockUser)
+		suadmin.GET("/users", suadminhandler.ListUsers)
+		suadmin.GET("/admins", suadminhandler.ListAdmins)
+		suadmin.GET("/reports", suadminhandler.ListReports)
+		suadmin.GET("/reports/:email", suadminhandler.DetailedReport)
 	}
 
 	return &GinEngine{engine: engine}

@@ -71,3 +71,33 @@ func (product *ProductDataBase) FindRelatedProducts(cat_id uint) ([]uint, error)
 	return id, product.DB.Raw(query, cat_id).Scan(&id).Error
 
 }
+
+func (product *ProductDataBase) FindDiscountByID(category_id uint) (responce.DiscountData, error) {
+
+	var discountdata responce.DiscountData
+
+	selectquery := `SELECT * FROM discounts WHERE category = $1`
+
+	return discountdata, product.DB.Raw(selectquery, category_id).Scan(&discountdata).Error
+
+}
+
+func (product *ProductDataBase) GetCategoryID(category, subcategory string) (uint, error) {
+
+	var count uint
+
+	query := `SELECT id FROM categories WHERE category = $1 AND sub_category = $2`
+
+	return count, product.DB.Raw(query, category, subcategory).Scan(&count).Error
+
+}
+
+func (product *ProductDataBase) GetBrand(id uint) (string, error) {
+
+	var brand string
+
+	query := `SELECT name FROM brands WHERE id = $1`
+
+	return brand, product.DB.Raw(query, id).Scan(&brand).Error
+
+}

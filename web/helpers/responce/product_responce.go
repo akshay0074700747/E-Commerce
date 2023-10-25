@@ -9,7 +9,8 @@ type ProuctData struct {
 	Brand           string                 `json:"brand"`
 	Name            string                 `json:"name"`
 	Description     string                 `json:"description"`
-	Price           int                    `json:"price"`
+	Price           int                    `json:"original_price"`
+	DiscountedPrice int                    `json:"discounted_price"`
 	Stock           int                    `json:"stock"`
 	Specifications  map[string]interface{} `json:"specifications"`
 	IsActive        bool                   `json:"is_active"`

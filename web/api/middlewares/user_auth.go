@@ -22,7 +22,7 @@ func UserAuth() gin.HandlerFunc {
 		cookie, err := c.Request.Cookie("jwtToken")
 		if err != nil {
 			fmt.Println("Cookie cannot be retrieved ...")
-			c.JSON(http.StatusUnauthorized, "Cookie cannot be retrieved ...")
+			c.JSON(http.StatusUnauthorized, "Cookie cannot be retrieved ...Please login")
 			c.Abort()
 			return
 		}

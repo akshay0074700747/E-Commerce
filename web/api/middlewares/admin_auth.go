@@ -30,6 +30,7 @@ func AdminAuth() gin.HandlerFunc {
 					Data:       nil,
 					Errors:     "Only admins are authorized to this route",
 				})
+				c.Abort()
 				return
 			}
 

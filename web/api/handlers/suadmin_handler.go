@@ -109,13 +109,27 @@ func (su *SuAdminHandler) CreateAdmin(c *gin.Context) {
 
 }
 
-func (su *SuAdminHandler) BlockUser(c *gin.Context)  {
+func (su *SuAdminHandler) BlockUser(c *gin.Context) {
 
 	email := c.Param("email")
 
-	if err := su.SuAdminUsecase.BlockUser(c.Request.Context(),email); err != nil {
+	var blockreq helperstructs.BlockReq
+
+	if err := c.BindJSON(&blockreq); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, responce.Response{
 			StatusCode: 422,
+			Message:    "can't Bind",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	blockreq.Email = email
+
+	if err := su.SuAdminUsecase.BlockUser(c.Request.Context(), blockreq); err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
 			Message:    "couldn't block the user",
 			Data:       nil,
 			Errors:     err.Error(),
@@ -127,6 +141,100 @@ func (su *SuAdminHandler) BlockUser(c *gin.Context)  {
 		StatusCode: 200,
 		Message:    "Blocked User Successfully",
 		Data:       nil,
+		Errors:     nil,
+	})
+
+}
+
+func (su *SuAdminHandler) ListUsers(c *gin.Context) {
+
+	usersdata, err := su.SuAdminUsecase.GetAllUsers(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldn't Retrive all the users",
+			Data:       usersdata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrived all the Users Successfully",
+		Data:       usersdata,
+		Errors:     nil,
+	})
+
+}
+
+func (su *SuAdminHandler) ListAdmins(c *gin.Context) {
+
+	admindata, err := su.SuAdminUsecase.GetAllAdmins(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldn't Retrive all the admins",
+			Data:       admindata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrived all the Admins Successfully",
+		Data:       admindata,
+		Errors:     nil,
+	})
+
+}
+
+func (su *SuAdminHandler) ListReports(c *gin.Context) {
+
+	reports, err := su.SuAdminUsecase.GetReportes(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldn't Retrive all the reports",
+			Data:       reports,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrived all the Reports Successfully",
+		Data:       reports,
+		Errors:     nil,
+	})
+
+}
+
+func (su *SuAdminHandler) DetailedReport(c *gin.Context) {
+
+	email := c.Param("email")
+
+	report, err := su.SuAdminUsecase.GetDetailedReport(c, email)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldn't Retrive the report",
+			Data:       report,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrived the Report Successfully",
+		Data:       report,
 		Errors:     nil,
 	})
 

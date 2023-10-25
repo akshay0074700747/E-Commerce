@@ -9,7 +9,6 @@ type User struct {
 	Mobile      string    `json:"mobile" binding:"required,eq=10" gorm:"unique; not null"`
 	Password    string    `json:"password" gorm:"not null"`
 	Isblocked   bool      `json:"isblocked" gorm:"default:false"`
-	Reports     int       `json:"reports" gorm:"default:0"`
 	UnblockTime time.Time `json:"unblocktime"`
 	CreatedAt   time.Time
 }

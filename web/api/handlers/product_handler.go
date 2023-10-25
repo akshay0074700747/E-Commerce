@@ -157,3 +157,70 @@ func (product *ProductHandler) DeleteProduct(c *gin.Context) {
 	})
 
 }
+
+func (product *ProductHandler) FilterByCategory(c *gin.Context) {
+
+	category := c.Param("category")
+
+	productdata, err := product.ProductUsecase.GetProducts(c)
+
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, responce.Response{
+			StatusCode: 503,
+			Message:    "Coouldnt get the Products",
+			Data:       productdata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	for i := range productdata {
+
+		if productdata[i].Category != category {
+			productdata = append(productdata[:i], productdata[i+1:]...)
+		}
+
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Loaded all the Products",
+		Data:       productdata,
+		Errors:     nil,
+	})
+
+}
+
+func (product *ProductHandler) FilterByCategoryAndSub(c *gin.Context) {
+
+	category := c.Param("category")
+	sub := c.Param("sub")
+
+	productdata, err := product.ProductUsecase.GetProducts(c)
+
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, responce.Response{
+			StatusCode: 503,
+			Message:    "Coouldnt get the Products",
+			Data:       productdata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	for i := range productdata {
+
+		if productdata[i].Category != category || productdata[i].SubCategory != sub {
+			productdata = append(productdata[:i], productdata[i+1:]...)
+		}
+
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Loaded all the Products",
+		Data:       productdata,
+		Errors:     nil,
+	})
+
+}

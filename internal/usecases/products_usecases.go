@@ -6,6 +6,7 @@ import (
 	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"strconv"
 )
 
 type ProductUsecases struct {
@@ -36,7 +37,44 @@ func (product *ProductUsecases) AddProduct(ctx context.Context, productreq helpe
 
 func (product *ProductUsecases) GetProducts(ctx context.Context) ([]responce.ProuctData, error) {
 
-	return product.ProductRepo.GetProducts()
+	productsdata, err := product.ProductRepo.GetProducts()
+
+	if err != nil {
+		return productsdata, err
+	}
+
+	for i := range productsdata {
+
+		brand, err := strconv.ParseUint(productsdata[i].Brand, 10, 0)
+
+		if err != nil {
+			return productsdata, err
+		}
+
+		productsdata[i].Brand, err = product.ProductRepo.GetBrand(uint(brand))
+
+		if err != nil {
+			return productsdata, err
+		}
+
+		cat, err := product.ProductRepo.GetCategoryID(productsdata[i].Category, productsdata[i].SubCategory)
+
+		if err != nil {
+			return productsdata, err
+		}
+
+		discount, err := product.ProductRepo.FindDiscountByID(cat)
+
+		if err != nil {
+			return productsdata, err
+		}
+		if discount.Discount != float32(0) {
+			productsdata[i].DiscountedPrice = productsdata[i].Price - int((discount.Discount*float32(productsdata[i].Price))/100)
+		}
+
+	}
+
+	return productsdata, nil
 
 }
 

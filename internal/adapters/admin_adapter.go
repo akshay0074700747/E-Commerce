@@ -42,19 +42,45 @@ func (admn *AdminDatabase) GetAllUsers() ([]responce.AdminsideUsersData, error) 
 	return usersdata, err
 }
 
-func (admn *AdminDatabase) ReportUser(email string) error {
+func (admn *AdminDatabase) ReportUser(reportreq helperstructs.ReportReq) error {
 
-	updateQuery := `UPDATE users SET reports = reports + 1 WHERE email = ?`
+	Insertquery := `INSERT INTO reports (email,description) VALUES ($1,$2)`
 
-	result := admn.DB.Exec(updateQuery, email)
-	
+	result := admn.DB.Exec(Insertquery, reportreq.Email, reportreq.Description)
+
 	if result.Error != nil {
 		return result.Error
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("no rows were affected by the update")
+		return fmt.Errorf("no rows were affected by the insertion")
 	}
 
 	return nil
+}
+
+func (admn *AdminDatabase) GetReports(email string) (int, error) {
+
+	var count int
+
+	query := `SELECT COUNT(email) FROM reports WHERE email = $1`
+
+	return count, admn.DB.Raw(query, email).Scan(&count).Error
+
+}
+
+func (admn *AdminDatabase) GetUser(email string) (responce.AdminsideUsersData, error) {
+
+	var userdata responce.AdminsideUsersData
+
+	selectquery := `SELECT * FROM users WHERE email = $1`
+
+	query := `SELECT COUNT(email) FROM reports WHERE email = $1`
+
+	if err := admn.DB.Raw(selectquery, email).Scan(&userdata).Error; err != nil {
+		return userdata, err
+	}
+
+	return userdata, admn.DB.Raw(query, email).Scan(&userdata.Reports).Error
+
 }

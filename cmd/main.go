@@ -25,7 +25,8 @@ func main() {
 
 	unblock_crone := cronejobs.NewUnblockUsers(cronedb)
 
-	server.Start()
 	unblock_crone.Start()
+
+	server.Start()
 
 }

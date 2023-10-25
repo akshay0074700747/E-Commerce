@@ -11,4 +11,7 @@ type ProductsRepo interface {
 	UpdateProduct(productreq helperstructs.ProductReq) (responce.ProuctData,error)
 	DeleteProduct(product_id uint ) (error)
 	FindRelatedProducts(cat_id uint) ([]uint,error)
+	FindDiscountByID(category_id uint) (responce.DiscountData, error)
+	GetCategoryID(category,subcategory string) (uint,error)
+	GetBrand(id uint)(string,error)
 }
