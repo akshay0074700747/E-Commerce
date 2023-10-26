@@ -6,6 +6,7 @@ import (
 	"ecommerce/web/config"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,13 @@ func NewSuAdminHandler(usecase usecasesinterface.SuAdminUsecaseInterface, config
 }
 
 func (su *SuAdminHandler) Login(c *gin.Context) {
+
+	cookie, _ := c.Request.Cookie("jwtToken")
+
+	if cookie != nil {
+		c.AbortWithError(http.StatusConflict, fmt.Errorf("the super admin is already logged in"))
+		return
+	}
 
 	var req helperstructs.SuAdminReq
 
@@ -235,6 +243,18 @@ func (su *SuAdminHandler) DetailedReport(c *gin.Context) {
 		StatusCode: 200,
 		Message:    "Retrived the Report Successfully",
 		Data:       report,
+		Errors:     nil,
+	})
+
+}
+
+func (su *SuAdminHandler) Logout(c *gin.Context) {
+
+	c.SetCookie("jwtToken", "", -1, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Logged out successfully",
+		Data:       nil,
 		Errors:     nil,
 	})
 

@@ -31,6 +31,10 @@ func (un *UnblockUsers) Start() {
 			fmt.Println(err.Error())
 		}
 
+		if err := un.DB.Exec(`DELETE FROM discounts WHERE end_date < NOW();`).Error; err != nil {
+			fmt.Println(err.Error())
+		}
+
 		fmt.Println("croneeee woooorked.........................................")
 
 	})

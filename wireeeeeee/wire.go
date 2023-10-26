@@ -5,6 +5,7 @@ import (
 	"ecommerce/internal/usecases"
 	routes "ecommerce/web/api/Routes"
 	"ecommerce/web/api/handlers"
+	"ecommerce/web/api/middlewares"
 	"ecommerce/web/config"
 	"ecommerce/web/database"
 
@@ -21,6 +22,7 @@ func InitializeAPI1(config config.Config) (*routes.GinEngine, error) {
 		adapters.NewProductDataBase,
 		adapters.NewBrandRepository,
 		adapters.NewDiscountAdapter,
+		middlewares.NewUserAuthentication,
 		usecases.NewUserUseCase,
 		usecases.NewAdminUsecase,
 		usecases.NewSuAdminUsecase,

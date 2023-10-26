@@ -4,6 +4,7 @@ import (
 	"ecommerce/internal/interfaces/repositories"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -23,10 +24,12 @@ func (product *ProductDataBase) AddProduct(productreq helperstructs.ProductReq) 
 	var productdta responce.ProuctData
 
 	insertquery := `INSERT INTO products (category,brand,name,description,price,stock,specifications,
-		is_active,relative_products,updated_by) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`
+		relative_products,updated_by,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW()) RETURNING 
+		id,category,brand,name,description,price,stock,specifications,
+		relative_products,updated_by,updated_at`
 
 	return productdta, product.DB.Raw(insertquery, productreq.Category, productreq.Brand, productreq.Name, productreq.Description,
-		productreq.Price, productreq.Stock, productreq.Specifications, productreq.IsActive,
+		productreq.Price, productreq.Stock, productreq.Specifications,
 		productreq.RelatedProducts, productreq.UpdatedBy).Scan(&productdta).Error
 
 }
@@ -38,7 +41,19 @@ func (product *ProductDataBase) GetProducts() ([]responce.ProuctData, error) {
 	selectquery := `SELECT products.*,categories.category,categories.sub_category FROM products
 	INNER JOIN categories ON products.category = categories.id`
 
-	return productdta, product.DB.Raw(selectquery).Scan(&productdta).Error
+	if err := product.DB.Raw(selectquery).Scan(&productdta).Error; err != nil {
+		return productdta, err
+	}
+
+	querryyy := `SELECT relative_products from products WHERE id = $1`
+
+	for i := range productdta {
+		if err := product.DB.Raw(querryyy, productdta[i].ID).Scan(&productdta[i].RelativeProducts).Error; err != nil {
+			fmt.Println(err.Error())
+		}
+	}
+
+	return productdta, nil
 
 }
 
@@ -46,11 +61,12 @@ func (product *ProductDataBase) UpdateProduct(productreq helperstructs.ProductRe
 	var productdta responce.ProuctData
 
 	updatequery := `UPDATE products SET category = $1, brand = $2, name = $3, description = $4, 
-        price = $5, stock = $6, specifications = $7, is_active = $8, relative_products = $9, updated_by = $10 
-        WHERE id = $11`
+        price = $5, stock = $6, specifications = $7, relative_products = $8, updated_by = $9 
+        WHERE id = $10 RETURNING id,category,brand,name,description,price,stock,specifications,
+		relative_products,updated_by,updated_at`
 
-	return productdta, product.DB.Exec(updatequery, productreq.Category, productreq.Brand, productreq.Name,
-		productreq.Description, productreq.Price, productreq.Stock, productreq.Specifications, productreq.IsActive,
+	return productdta, product.DB.Raw(updatequery, productreq.Category, productreq.Brand, productreq.Name,
+		productreq.Description, productreq.Price, productreq.Stock, productreq.Specifications,
 		productreq.RelatedProducts, productreq.UpdatedBy, productreq.ID).Scan(&productdta).Error
 }
 

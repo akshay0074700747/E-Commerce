@@ -125,7 +125,7 @@ func (brand *BrandHandler) UpdateBrand(c *gin.Context) {
 
 }
 
-func (brand *BrandHandler) GetAllbrandegories(c *gin.Context) {
+func (brand *BrandHandler) GetAllbrans(c *gin.Context) {
 
 	branddata, err := brand.BrandUsecase.GetallBrand(c)
 

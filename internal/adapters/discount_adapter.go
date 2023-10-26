@@ -20,7 +20,7 @@ func (discount *DiscountAdapter) AddDiscount(discountreq helperstructs.DiscountR
 
 	var discountdta responce.DiscountData
 
-	insertquery := `INSERT INTO discounts (category,discount,end_date) VALUES ($1,$2,$3)`
+	insertquery := `INSERT INTO discounts (category,discount,end_date) VALUES ($1,$2,$3) RETURNING id,category,discount,end_date`
 
 	return discountdta, discount.DB.Raw(insertquery, discountreq.Category, discountreq.Discount, discountreq.EndDate).Scan(&discountdta).Error
 
@@ -30,7 +30,7 @@ func (discount *DiscountAdapter) UpdateDiscount(discountreq helperstructs.Discou
 
 	var discountdta responce.DiscountData
 
-	updatequery := `UPDATE discounts SET category = $1, discount = $2, end_date = $3 WHERE id = $4`
+	updatequery := `UPDATE discounts SET category = $1, discount = $2, end_date = $3 WHERE id = $4 RETURNING id,category,discount,end_date`
 
 	return discountdta, discount.DB.Raw(updatequery, discountreq.Category, discountreq.Discount, discountreq.EndDate, discountreq.ID).Scan(&discountdta).Error
 

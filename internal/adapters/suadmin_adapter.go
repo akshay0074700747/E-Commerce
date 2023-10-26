@@ -94,9 +94,24 @@ func (suadmin *SuAdminDataBase) GetReportes() ([]responce.DetailReportResponce, 
 
 	var reports []responce.DetailReportResponce
 
-	query := `SELECT email,COUNT(*) AS reports,ARRAY_AGG(description) AS description FROM reports GROUP BY email`
+	// query := `SELECT email,COUNT(*) AS reports,ARRAY_AGG(description) AS description FROM reports GROUP BY email`
+	query := `SELECT email,COUNT(*) AS reports FROM reports GROUP BY email`
 
-	return reports, suadmin.DB.Raw(query).Scan(&reports).Error
+	err := suadmin.DB.Raw(query).Scan(&reports).Error
+
+	if err != nil {
+		return reports, err
+	}
+
+	queryy := `SELECT description FROM reports WHERE email = $1`
+
+	for i := range reports {
+		if err := suadmin.DB.Raw(queryy, reports[i].Email).Scan(&reports[i].Description).Error; err != nil {
+			return reports, err
+		}
+	}
+
+	return reports, nil
 
 }
 
@@ -104,9 +119,16 @@ func (suadmin *SuAdminDataBase) GetDetailedReport(email string) (responce.Detail
 
 	var report responce.DetailReportResponce
 
-	query := `SELECT email,COUNT(*) AS reports,ARRAY_AGG(description) AS description FROM reports WHERE email = $1 GROUP BY email`
+	// query := `SELECT email,COUNT(*) AS reports,ARRAY_AGG(description) AS description FROM reports WHERE email = $1 GROUP BY email`
+	query := `SELECT email,COUNT(*) AS reports FROM reports WHERE email = $1 GROUP BY email`
 
-	return report, suadmin.DB.Raw(query, email).Scan(&report).Error
+	if err := suadmin.DB.Raw(query, email).Scan(&report).Error; err != nil {
+		return report, err
+	}
+
+	querryy := `SELECT description FROM reports WHERE email = $1`
+
+	return report, suadmin.DB.Raw(querryy, email).Scan(&report.Description).Error
 
 }
 

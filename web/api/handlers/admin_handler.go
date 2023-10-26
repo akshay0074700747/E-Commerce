@@ -6,6 +6,7 @@ import (
 	"ecommerce/web/config"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,13 @@ func NewAdminHandler(usecase usecasesinterface.AdminUsecaseInterface, config con
 }
 
 func (ad *AdminHandler) Login(c *gin.Context) {
+
+	cookie, _ := c.Request.Cookie("jwtToken")
+
+	if cookie != nil {
+		c.AbortWithError(http.StatusConflict, fmt.Errorf("the admin is already logged in"))
+		return
+	}
 
 	var req helperstructs.AdminReq
 
@@ -154,6 +162,18 @@ func (ad *AdminHandler) GetUser(c *gin.Context) {
 		StatusCode: 200,
 		Message:    "Retrieved User Successfully",
 		Data:       userdata,
+		Errors:     nil,
+	})
+
+}
+
+func (ad *AdminHandler) Logout(c *gin.Context) {
+
+	c.SetCookie("jwtToken", "", -1, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Logged out successfully",
+		Data:       nil,
 		Errors:     nil,
 	})
 

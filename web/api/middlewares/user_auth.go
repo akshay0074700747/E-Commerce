@@ -3,13 +3,23 @@ package middlewares
 import (
 	"ecommerce/web/api/middlewares/jwt"
 	"ecommerce/web/config"
+	"ecommerce/web/helpers/responce"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func UserAuth() gin.HandlerFunc {
+type UserAuthentication struct {
+	DB *gorm.DB
+}
+
+func NewUserAuthentication(db *gorm.DB) *UserAuthentication {
+	return &UserAuthentication{DB: db}
+}
+
+func (user *UserAuthentication) UserAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		config, err := config.LoadConfig()
 
@@ -29,12 +39,33 @@ func UserAuth() gin.HandlerFunc {
 
 		cookieString := cookie.Value
 
-		values, err := jwt.ValidateToken(cookieString, []byte(secret)) // Replace with your validation logic
+		values, err := jwt.ValidateToken(cookieString, []byte(secret))
 
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, err.Error())
 			c.Abort()
 			return
+		}
+
+		var userr responce.UserData
+		var admin responce.AdminData
+
+		user.DB.Raw(`SELECT * FROM users WHERE email = $1`, values["email"].(string)).Scan(&userr)
+
+		if userr.Email == "" {
+
+			user.DB.Raw(`SELECT * FROM admins WHERE email = $1`, values["email"].(string)).Scan(&admin)
+
+			if admin.Email != "" && admin.Isblocked {
+
+				c.JSON(http.StatusServiceUnavailable, fmt.Errorf("you have been blocked"))
+
+			}
+
+		} else if userr.Isblocked {
+
+			c.JSON(http.StatusServiceUnavailable, fmt.Errorf("you have been blocked"))
+
 		}
 
 		c.Set("values", values)

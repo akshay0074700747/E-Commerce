@@ -38,16 +38,19 @@ func (c *userUseCase) UserSignUp(ctx context.Context, user helperstructs.UserReq
 
 func (c *userUseCase) UserLogin(ctx context.Context, user helperstructs.UserReq) (responce.UserData, error) {
 
-      userdata,err :=  c.userRepo.GetByEmail(user)
+	userdata, err := c.userRepo.GetByEmail(user)
 
-	  if err != nil {
-		return userdata,err
-	  }
+	if err != nil {
+		return userdata, err
+	}
 
-	  if userdata.Email == "" {
-		return userdata,fmt.Errorf("you have been blocked")
-	  }
+	fmt.Println(userdata.Isblocked)
+	fmt.Println("jfahsssssskdhskjadsfh")
 
-	  return userdata,nil
+	if userdata.Isblocked {
+		return responce.UserData{}, fmt.Errorf("you have been blocked")
+	}
+
+	return userdata, nil
 
 }

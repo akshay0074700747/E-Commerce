@@ -33,7 +33,7 @@ func (c *userDatabase) GetByEmail(user helperstructs.UserReq) (responce.UserData
 
 	var userdta responce.UserData
 
-	selectquery := `SELECT * FROM users WHERE email = $1 AND isblocked = false`
+	selectquery := `SELECT * FROM users WHERE email = $1`
 
 	err := c.DB.Raw(selectquery, user.Email).Scan(&userdta).Error
 

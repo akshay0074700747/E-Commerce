@@ -6,6 +6,7 @@ import (
 	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 )
 
 type AdminUsecase struct {
@@ -20,7 +21,17 @@ func NewAdminUsecase(repo repositories.AdminRepo) usecasesinterface.AdminUsecase
 
 func (admin *AdminUsecase) AdminLogin(ctx context.Context, adminreq helperstructs.AdminReq) (responce.AdminData, error) {
 
-	return admin.AdminRepo.GetByEmail(adminreq)
+	admindata,err := admin.AdminRepo.GetByEmail(adminreq)
+
+	if err != nil {
+		return admindata,err
+	}
+
+	if admindata.Isblocked {
+		return responce.AdminData{},fmt.Errorf("sorry you have been blocked")
+	}
+
+	return admindata,nil
 
 }
 

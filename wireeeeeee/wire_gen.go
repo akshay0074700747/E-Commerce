@@ -11,6 +11,7 @@ import (
 	"ecommerce/internal/usecases"
 	"ecommerce/web/api/Routes"
 	"ecommerce/web/api/handlers"
+	"ecommerce/web/api/middlewares"
 	"ecommerce/web/config"
 	"ecommerce/web/database"
 )
@@ -40,6 +41,7 @@ func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
 	discountRepo := adapters.NewDiscountAdapter(db)
 	discountUsecaseInterface := usecases.NewDiscountUsecase(discountRepo)
 	discountHandler := handlers.NewDiscountHandler(discountUsecaseInterface)
-	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler, categoryHandler, productHandler, brandHandler, discountHandler)
+	userAuthentication := middlewares.NewUserAuthentication(db)
+	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler, categoryHandler, productHandler, brandHandler, discountHandler, userAuthentication)
 	return ginEngine, nil
 }

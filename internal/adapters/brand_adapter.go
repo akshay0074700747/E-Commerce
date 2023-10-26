@@ -35,7 +35,7 @@ func (brand *BrandDataBase) UpdateBrand(brandreq helperstructs.BrandReq) (respon
 
 	var branddata responce.BrandData
 
-	updatequery := `UPDATE brands SET name = $1 WHERE id = $2`
+	updatequery := `UPDATE brands SET name = $1 WHERE id = $2 RETURNING id,name`
 
 	err := brand.DB.Raw(updatequery, brandreq.Name, brandreq.ID).Scan(&branddata).Error
 

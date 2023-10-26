@@ -27,6 +27,13 @@ func NewUserHandler(config config.Config, usecase usecasesinterface.UserUsecaseI
 
 func (cr *UserHandler) UserSignUp(c *gin.Context) {
 
+	cookie, _ := c.Request.Cookie("jwtToken")
+
+	if cookie != nil {
+		c.AbortWithError(http.StatusConflict, fmt.Errorf("the user is already logged in"))
+		return
+	}
+
 	var user helperstructs.UserReq
 	err := c.BindJSON(&user)
 	if err != nil {
@@ -115,6 +122,13 @@ func (cr *UserHandler) UserSignUp(c *gin.Context) {
 
 func (cr *UserHandler) UserLogin(c *gin.Context) {
 
+	cookie, _ := c.Request.Cookie("jwtToken")
+
+	if cookie != nil {
+		c.AbortWithError(http.StatusConflict, fmt.Errorf("the user is already logged in"))
+		return
+	}
+
 	var req helperstructs.UserReq
 
 	if err := c.BindJSON(&req); err != nil {
@@ -126,6 +140,8 @@ func (cr *UserHandler) UserLogin(c *gin.Context) {
 		})
 		return
 	}
+
+	fmt.Println("wqfdtygasfjuytgdfwujydgweqr")
 
 	userdta, err := cr.UserUseCase.UserLogin(c.Request.Context(), req)
 
@@ -155,8 +171,20 @@ func (cr *UserHandler) UserLogin(c *gin.Context) {
 
 	c.JSON(http.StatusAccepted, responce.Response{
 		StatusCode: 202,
-		Message:    "super admin logged in successfully",
+		Message:    "userlogged in successfully",
 		Data:       userdta,
 		Errors:     nil,
 	})
+}
+
+func (cr *UserHandler) Logout(c *gin.Context) {
+
+	c.SetCookie("jwtToken", "", -1, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Logged out successfully",
+		Data:       nil,
+		Errors:     nil,
+	})
+
 }

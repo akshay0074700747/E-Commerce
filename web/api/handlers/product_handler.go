@@ -208,10 +208,12 @@ func (product *ProductHandler) FilterByCategoryAndSub(c *gin.Context) {
 		return
 	}
 
+	var newproducts []responce.ProuctData
+
 	for i := range productdata {
 
-		if productdata[i].Category != category || productdata[i].SubCategory != sub {
-			productdata = append(productdata[:i], productdata[i+1:]...)
+		if productdata[i].Category == category && productdata[i].SubCategory == sub {
+			newproducts = append(newproducts, productdata[i])
 		}
 
 	}
@@ -219,7 +221,7 @@ func (product *ProductHandler) FilterByCategoryAndSub(c *gin.Context) {
 	c.JSON(http.StatusOK, responce.Response{
 		StatusCode: 200,
 		Message:    "Loaded all the Products",
-		Data:       productdata,
+		Data:       newproducts,
 		Errors:     nil,
 	})
 

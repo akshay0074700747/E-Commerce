@@ -17,7 +17,8 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	cathandler *handlers.CategoryHandler,
 	prodhandler *handlers.ProductHandler,
 	brandhandler *handlers.BrandHandler,
-	dischandler *handlers.DiscountHandler) *GinEngine {
+	dischandler *handlers.DiscountHandler,
+	authentication *middlewares.UserAuthentication) *GinEngine {
 
 	engine := gin.New()
 
@@ -27,17 +28,18 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	engine.POST("/user/signup", userhandler.UserSignUp)
 
 	user := engine.Group("/user")
-	user.Use(middlewares.UserAuth())
+	user.Use(authentication.UserAuth())
 	{
 		user.GET("/products", prodhandler.GetProducts)
 		user.GET("/products/:category", prodhandler.FilterByCategory)
 		user.GET("/products/:category/:sub", prodhandler.FilterByCategoryAndSub)
+		user.POST("/logout", userhandler.Logout)
 	}
 
 	engine.POST("/admin/login", adminhandler.Login)
 
 	admin := engine.Group("/admin")
-	admin.Use(middlewares.UserAuth(), middlewares.AdminAuth())
+	admin.Use(authentication.UserAuth(), middlewares.AdminAuth())
 	{
 		admin.GET("/users", adminhandler.GetAllUsers)
 		admin.POST("/report/:email", adminhandler.ReportUser)
@@ -45,6 +47,10 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		admin.POST("/categories/add", cathandler.CreateCategory)
 		admin.PATCH("/categories/update", cathandler.UpdateCategory)
 		admin.DELETE("/categories/delete/:id", cathandler.DeleteCategory)
+		admin.GET("/brands", brandhandler.GetAllbrans)
+		admin.POST("/brands/add", brandhandler.CreateBrand)
+		admin.PATCH("/brands/update", brandhandler.UpdateBrand)
+		admin.DELETE("/brands/delete/:id", brandhandler.DeleteBrand)
 		admin.GET("/products", prodhandler.GetProducts)
 		admin.POST("/products/add", prodhandler.AddProduct)
 		admin.PATCH("/products/update", prodhandler.UpdateProducts)
@@ -52,13 +58,14 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		admin.GET("/discounts", dischandler.GetAllDiscounts)
 		admin.POST("discounts/add", dischandler.AddDiscount)
 		admin.DELETE("/discounts/delete/:id", dischandler.DeleteDiscount)
-		admin.PATCH("/discounts/update/:id", dischandler.UpdateDiscount)
+		admin.PATCH("/discounts/update", dischandler.UpdateDiscount)
+		admin.POST("/logout", adminhandler.Logout)
 	}
 
 	engine.POST("/suadmin/login", suadminhandler.Login)
 
 	suadmin := engine.Group("/suadmin")
-	suadmin.Use(middlewares.UserAuth(), middlewares.SuAdminAuth())
+	suadmin.Use(authentication.UserAuth(), middlewares.SuAdminAuth())
 	{
 		suadmin.POST("/createadmin", suadminhandler.CreateAdmin)
 		suadmin.POST("/block/:email", suadminhandler.BlockUser)
@@ -66,6 +73,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		suadmin.GET("/admins", suadminhandler.ListAdmins)
 		suadmin.GET("/reports", suadminhandler.ListReports)
 		suadmin.GET("/reports/:email", suadminhandler.DetailedReport)
+		suadmin.POST("/logout", suadminhandler.Logout)
 	}
 
 	return &GinEngine{engine: engine}
