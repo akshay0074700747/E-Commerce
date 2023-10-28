@@ -4,6 +4,7 @@ import (
 	"ecommerce/internal/interfaces/repositories"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -38,5 +39,23 @@ func (c *userDatabase) GetByEmail(user helperstructs.UserReq) (responce.UserData
 	err := c.DB.Raw(selectquery, user.Email).Scan(&userdta).Error
 
 	return userdta, err
+
+}
+
+func (c *userDatabase) ReportAdmin(reportreq helperstructs.ReportReq) (error) {
+	
+	Insertquery := `INSERT INTO reports (email,description) VALUES ($1,$2)`
+
+	result := c.DB.Exec(Insertquery, reportreq.Email, reportreq.Description)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no rows were affected by the insertion")
+	}
+
+	return nil
 
 }

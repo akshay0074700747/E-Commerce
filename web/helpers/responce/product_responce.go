@@ -12,7 +12,7 @@ type JSONB map[string]interface{}
 func (j *JSONB) Scan(src interface{}) error {
 	source, ok := src.([]byte)
 	if !ok {
-		return errors.New("Type assertion .([]byte) failed.")
+		return errors.New("type assertion .([]byte) failed")
 	}
 
 	err := json.Unmarshal(source, j)
@@ -32,7 +32,11 @@ func (j JSONB) Value() (driver.Value, error) {
 	return jByte, nil
 }
 
-type ProuctData struct {
+type ProuctData interface {
+	itsmee()
+}
+
+type AdminsideProuctData struct {
 	ID               uint   `json:"id"`
 	Category         string `json:"category"`
 	SubCategory      string `json:"subcategory"`
@@ -48,6 +52,12 @@ type ProuctData struct {
 	UpdatedBy        string `json:"updated_by"`
 	UpdatedAt        time.Time
 }
+
+func (admnproduct *AdminsideProuctData) itsmee() {
+	
+}
+
+
 
 type BrandData struct {
 	ID   uint   `json:"id"`

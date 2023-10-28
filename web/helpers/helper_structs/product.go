@@ -27,3 +27,8 @@ type DiscountReq struct {
 	Discount float32   `json:"discount"`
 	EndDate  time.Time `json:"end_date"`
 }
+
+type StockReq struct {
+	ID uint `json:"id"`
+	Stock int `json:"stock"`
+}

@@ -107,8 +107,6 @@ func (ad *AdminHandler) GetAllUsers(c *gin.Context) {
 
 func (ad *AdminHandler) ReportUser(c *gin.Context) {
 
-	email := c.Param("email")
-
 	var req helperstructs.ReportReq
 
 	if err := c.BindJSON(&req); err != nil {
@@ -120,8 +118,6 @@ func (ad *AdminHandler) ReportUser(c *gin.Context) {
 		})
 		return
 	}
-
-	req.Email = email
 
 	if err := ad.AdminUsecase.Reportuser(c.Request.Context(), req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, responce.Response{

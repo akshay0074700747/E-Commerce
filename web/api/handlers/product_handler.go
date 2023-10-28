@@ -61,7 +61,15 @@ func (product *ProductHandler) AddProduct(c *gin.Context) {
 
 func (product *ProductHandler) GetProducts(c *gin.Context) {
 
-	productdata, err := product.ProductUsecase.GetProducts(c)
+	email, exists := c.Get("userhandler")
+
+	if exists {
+		var userproduct = struct{
+			Products 
+		}
+	}
+
+	productdata, err := product.ProductUsecase.GetProducts(c,email.(string))
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{
@@ -222,6 +230,64 @@ func (product *ProductHandler) FilterByCategoryAndSub(c *gin.Context) {
 		StatusCode: 200,
 		Message:    "Loaded all the Products",
 		Data:       newproducts,
+		Errors:     nil,
+	})
+
+}
+
+func (product *ProductHandler) UpdateStocks(c *gin.Context) {
+
+	var stock helperstructs.StockReq
+
+	if err := c.BindJSON(&stock); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't convert to uint",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	if err := product.ProductUsecase.UpdateStock(c, stock.ID, stock.Stock); err != nil {
+		c.JSON(http.StatusServiceUnavailable, responce.Response{
+			StatusCode: 503,
+			Message:    "Coouldnt get the Products",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, responce.Response{
+		StatusCode: 201,
+		Message:    "Updated the stock",
+		Data:       nil,
+		Errors:     nil,
+	})
+
+}
+
+func (product *ProductHandler) GetProductByID(c *gin.Context) {
+
+	id := c.Param("id")
+
+	productdata, err := product.ProductUsecase.GetProductByID(c, id)
+
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, responce.Response{
+			StatusCode: 503,
+			Message:    "Coouldnt get the Product",
+			Data:       productdata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrieved the product details",
+		Data:       productdata,
 		Errors:     nil,
 	})
 

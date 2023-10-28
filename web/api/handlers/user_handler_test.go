@@ -71,7 +71,7 @@ func TestUserLogin(t *testing.T) {
 
 		assert.Equal(t, http.StatusUnauthorized, resp.Code)
 		mockUserUsecase.AssertExpectations(t)
-		
+
 	})
 }
 

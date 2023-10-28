@@ -14,4 +14,6 @@ type ProductsRepo interface {
 	FindDiscountByID(category_id uint) (responce.DiscountData, error)
 	GetCategoryID(category,subcategory string) (uint,error)
 	GetBrand(id uint)(string,error)
+	UpdateStock(id uint,stock int) (error)
+	GetProductByID(id uint) (responce.ProuctData, error)
 }

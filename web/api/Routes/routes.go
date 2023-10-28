@@ -30,10 +30,16 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	user := engine.Group("/user")
 	user.Use(authentication.UserAuth())
 	{
-		user.GET("/products", prodhandler.GetProducts)
-		user.GET("/products/:category", prodhandler.FilterByCategory)
-		user.GET("/products/:category/:sub", prodhandler.FilterByCategoryAndSub)
+		product := user.Group("/products")
+		product.Use(middlewares.CartAndWishListAdder())
+		{
+			product.GET("", prodhandler.GetProducts)
+			product.GET("/:category", prodhandler.FilterByCategory)
+			product.GET("/:category/:sub", prodhandler.FilterByCategoryAndSub)
+		}
 		user.POST("/logout", userhandler.Logout)
+		user.GET("/view/product/:id", prodhandler.GetProductByID).Use(middlewares.CartAndWishListAdder())
+		user.POST("/report", userhandler.ReportAdmin)
 	}
 
 	engine.POST("/admin/login", adminhandler.Login)
@@ -42,7 +48,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	admin.Use(authentication.UserAuth(), middlewares.AdminAuth())
 	{
 		admin.GET("/users", adminhandler.GetAllUsers)
-		admin.POST("/report/:email", adminhandler.ReportUser)
+		admin.POST("/report", adminhandler.ReportUser)
 		admin.GET("/categories", cathandler.GetAllCategories)
 		admin.POST("/categories/add", cathandler.CreateCategory)
 		admin.PATCH("/categories/update", cathandler.UpdateCategory)
@@ -55,6 +61,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		admin.POST("/products/add", prodhandler.AddProduct)
 		admin.PATCH("/products/update", prodhandler.UpdateProducts)
 		admin.DELETE("/products/delete/:id", prodhandler.DeleteProduct)
+		admin.PATCH("/products/stockupdate", prodhandler.UpdateStocks)
 		admin.GET("/discounts", dischandler.GetAllDiscounts)
 		admin.POST("discounts/add", dischandler.AddDiscount)
 		admin.DELETE("/discounts/delete/:id", dischandler.DeleteDiscount)
@@ -68,7 +75,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	suadmin.Use(authentication.UserAuth(), middlewares.SuAdminAuth())
 	{
 		suadmin.POST("/createadmin", suadminhandler.CreateAdmin)
-		suadmin.POST("/block/:email", suadminhandler.BlockUser)
+		suadmin.POST("/block", suadminhandler.BlockUser)
 		suadmin.GET("/users", suadminhandler.ListUsers)
 		suadmin.GET("/admins", suadminhandler.ListAdmins)
 		suadmin.GET("/reports", suadminhandler.ListReports)

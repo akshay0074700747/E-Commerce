@@ -119,8 +119,6 @@ func (su *SuAdminHandler) CreateAdmin(c *gin.Context) {
 
 func (su *SuAdminHandler) BlockUser(c *gin.Context) {
 
-	email := c.Param("email")
-
 	var blockreq helperstructs.BlockReq
 
 	if err := c.BindJSON(&blockreq); err != nil {
@@ -132,8 +130,6 @@ func (su *SuAdminHandler) BlockUser(c *gin.Context) {
 		})
 		return
 	}
-
-	blockreq.Email = email
 
 	if err := su.SuAdminUsecase.BlockUser(c.Request.Context(), blockreq); err != nil {
 		c.JSON(http.StatusInternalServerError, responce.Response{

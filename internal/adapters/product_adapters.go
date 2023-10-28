@@ -117,3 +117,21 @@ func (product *ProductDataBase) GetBrand(id uint) (string, error) {
 	return brand, product.DB.Raw(query, id).Scan(&brand).Error
 
 }
+
+func (product *ProductDataBase) UpdateStock(id uint, stock int) error {
+
+	query := `UPDATE products SET stock = $1 WHERE id = $2`
+
+	return product.DB.Exec(query, stock, id).Error
+
+}
+
+func (product *ProductDataBase) GetProductByID(id uint) (responce.ProuctData, error) {
+
+	var products responce.ProuctData
+
+	query := `SELECT * FROM products WHERE id = $1`
+
+	return products, product.DB.Raw(query, id).Scan(&products).Error
+
+}

@@ -54,3 +54,9 @@ func (c *userUseCase) UserLogin(ctx context.Context, user helperstructs.UserReq)
 	return userdata, nil
 
 }
+
+func (c *userUseCase) ReportAdmin(ctx context.Context, reportreq helperstructs.ReportReq) error {
+
+	return c.userRepo.ReportAdmin(reportreq)
+
+}

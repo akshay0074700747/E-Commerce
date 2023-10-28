@@ -35,12 +35,16 @@ func (product *ProductUsecases) AddProduct(ctx context.Context, productreq helpe
 
 }
 
-func (product *ProductUsecases) GetProducts(ctx context.Context) ([]responce.ProuctData, error) {
+func (product *ProductUsecases) GetProducts(ctx context.Context, email string) ([]responce.ProuctData, error) {
 
 	productsdata, err := product.ProductRepo.GetProducts()
 
 	if err != nil {
 		return productsdata, err
+	}
+
+	if email != "" {
+		
 	}
 
 	for i := range productsdata {
@@ -87,5 +91,23 @@ func (product *ProductUsecases) UpdateProduct(ctx context.Context, productreq he
 func (product *ProductUsecases) DeleteProduct(ctx context.Context, product_id uint) error {
 
 	return product.ProductRepo.DeleteProduct(product_id)
+
+}
+
+func (product *ProductUsecases) UpdateStock(ctx context.Context, id uint, stock int) error {
+
+	return product.ProductRepo.UpdateStock(id, stock)
+
+}
+
+func (product *ProductUsecases) GetProductByID(ctx context.Context, id string) (responce.ProuctData, error) {
+
+	uintid, err := strconv.ParseUint(id, 10, 0)
+
+	if err != nil {
+		return responce.ProuctData{}, err
+	}
+
+	return product.ProductRepo.GetProductByID(uint(uintid))
 
 }

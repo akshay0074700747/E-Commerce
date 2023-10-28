@@ -8,4 +8,5 @@ import (
 type UserRepo interface {
 	UserSignUp(user helperstructs.UserReq) (responce.UserData, error)
 	GetByEmail(user helperstructs.UserReq) (responce.UserData, error)
+	ReportAdmin(reportreq helperstructs.ReportReq) (error)
 }

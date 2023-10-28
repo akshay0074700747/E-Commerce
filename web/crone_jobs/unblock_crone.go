@@ -2,8 +2,8 @@ package cronejobs
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -19,30 +19,26 @@ func NewUnblockUsers(db *gorm.DB) *UnblockUsers {
 
 func (un *UnblockUsers) Start() {
 
-	c := cron.New()
+	ticker := time.NewTicker(5 * time.Minute)
 
-	_, err := c.AddFunc("*/5 * * * *", func() {
+	go func() {
+		for range ticker.C {
 
-		if err := un.DB.Exec(`UPDATE users SET isblocked = false WHERE unblock_time < NOW();`).Error; err != nil {
-			fmt.Println(err.Error())
+			if err := un.DB.Exec(`UPDATE users SET isblocked = false WHERE unblock_time < NOW();`).Error; err != nil {
+				fmt.Println(err.Error())
+			}
+
+			if err := un.DB.Exec(`UPDATE admins SET isblocked = false WHERE unblock_time < NOW();`).Error; err != nil {
+				fmt.Println(err.Error())
+			}
+
+			if err := un.DB.Exec(`DELETE FROM discounts WHERE end_date < NOW();`).Error; err != nil {
+				fmt.Println(err.Error())
+			}
+
+			fmt.Println("croneeee woooorked.........................................")
+
 		}
-
-		if err := un.DB.Exec(`UPDATE admins SET isblocked = false WHERE unblock_time < NOW();`).Error; err != nil {
-			fmt.Println(err.Error())
-		}
-
-		if err := un.DB.Exec(`DELETE FROM discounts WHERE end_date < NOW();`).Error; err != nil {
-			fmt.Println(err.Error())
-		}
-
-		fmt.Println("croneeee woooorked.........................................")
-
-	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	c.Start()
+	}()
 
 }

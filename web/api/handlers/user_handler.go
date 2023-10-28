@@ -14,14 +14,18 @@ import (
 )
 
 type UserHandler struct {
-	UserUseCase usecasesinterface.UserUsecaseInterface
-	Config      config.Config
+	UserUseCase     usecasesinterface.UserUsecaseInterface
+	Config          config.Config
+	CartUseCase     usecasesinterface.CartUseCaseInterface
+	WishListUseCase usecasesinterface.WishListUseCaseInterface
 }
 
-func NewUserHandler(config config.Config, usecase usecasesinterface.UserUsecaseInterface) *UserHandler {
+func NewUserHandler(config config.Config, usecase usecasesinterface.UserUsecaseInterface, cartusecase usecasesinterface.CartUseCaseInterface, wishlistusecase usecasesinterface.WishListUseCaseInterface) *UserHandler {
 	return &UserHandler{
-		UserUseCase: usecase,
-		Config:      config,
+		UserUseCase:     usecase,
+		Config:          config,
+		CartUseCase:     cartusecase,
+		WishListUseCase: wishlistusecase,
 	}
 }
 
@@ -107,6 +111,26 @@ func (cr *UserHandler) UserSignUp(c *gin.Context) {
 		return
 	}
 
+	if err := cr.CartUseCase.CreateCart(c, user.Email); err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "cannot create cart",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	if err := cr.WishListUseCase.CreateWishList(c, user.Email); err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "cannot create wishlist",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
 	c.SetCookie("jwtToken", jwt, 3600, "/", "localhost", false, false)
 
 	fmt.Println(jwt)
@@ -183,6 +207,39 @@ func (cr *UserHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, responce.Response{
 		StatusCode: 200,
 		Message:    "Logged out successfully",
+		Data:       nil,
+		Errors:     nil,
+	})
+
+}
+
+func (cr *UserHandler) ReportAdmin(c *gin.Context) {
+
+	var req helperstructs.ReportReq
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't bind",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	if err := cr.UserUseCase.ReportAdmin(c.Request.Context(), req); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "couldn't report the user",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Reported Admin Successfully",
 		Data:       nil,
 		Errors:     nil,
 	})

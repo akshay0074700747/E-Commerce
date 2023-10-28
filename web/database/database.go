@@ -33,7 +33,11 @@ func Connect_to(config config.Config) *gorm.DB {
 			&entities.Comments{},
 			&entities.Discount{},
 			&entities.Review{},
-			&entities.Reports{})
+			&entities.Reports{},
+			&entities.Carts{},
+			&entities.CartItems{},
+			&entities.WishLists{},
+			&entities.WishListItems{})
 		return db
 	}
 }
