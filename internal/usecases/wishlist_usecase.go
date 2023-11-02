@@ -73,3 +73,17 @@ func (wishlist *WishListUseCase) GetWishListitems(ctx context.Context, email str
 	return productdata, nil
 
 }
+
+func (wishlist *WishListUseCase) DeleteWishListItem(ctx context.Context, wishlistreq helperstructs.WishListItemsReq) error {
+
+	wish_id, err := wishlist.WishListRepo.GetWishListID(wishlistreq.Email)
+
+	if err != nil {
+		return err
+	}
+
+	wishlistreq.WishListID = wish_id
+
+	return wishlist.WishListRepo.DeleteWishListItem(wishlistreq)
+
+}

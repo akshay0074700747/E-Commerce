@@ -11,11 +11,15 @@ import (
 
 type WishListHandler struct {
 	WishListUseCase usecasesinterface.WishListUseCaseInterface
+	CartUsecase     usecasesinterface.CartUseCaseInterface
 }
 
-func NewWishListHandler(usecase usecasesinterface.WishListUseCaseInterface) *WishListHandler {
+func NewWishListHandler(wishlistusecase usecasesinterface.WishListUseCaseInterface, cartusecase usecasesinterface.CartUseCaseInterface) *WishListHandler {
 
-	return &WishListHandler{WishListUseCase: usecase}
+	return &WishListHandler{
+		WishListUseCase: wishlistusecase,
+		CartUsecase:     cartusecase,
+	}
 
 }
 
@@ -89,4 +93,106 @@ func (wishlist *WishListHandler) GetWishListItems(c *gin.Context) {
 		Errors:     nil,
 	})
 
+}
+
+func (wishlist *WishListHandler) DeleteWishListItem(c *gin.Context) {
+
+	value, _ := c.Get("values")
+
+	valueMap, _ := value.(map[string]interface{})
+
+	email := valueMap["email"].(string)
+
+	var wishreq helperstructs.WishListItemsReq
+
+	if err := c.BindJSON(&wishreq); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't bind",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	wishreq.Email = email
+
+	if err := wishlist.WishListUseCase.DeleteWishListItem(c, wishreq); err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "Cannot remove the wishlist item right now",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Removed the item from wishlist",
+		Data:       nil,
+		Errors:     nil,
+	})
+
+}
+
+func (wishlist *WishListHandler) AddItemtoCart(c *gin.Context) {
+
+	value, _ := c.Get("values")
+
+	valueMap, _ := value.(map[string]interface{})
+
+	email := valueMap["email"].(string)
+
+	var cartreq helperstructs.CartItemReq
+	var wishreq helperstructs.WishListItemsReq
+
+	if err := c.BindJSON(&cartreq); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't bind",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	cartreq.Email = email
+	cartreq.Quantity = 1
+	wishreq.Email = email
+	wishreq.ProductId = cartreq.ProductId
+
+	proddata, err := wishlist.CartUsecase.AddToCart(c, cartreq)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responce.Response{
+			StatusCode: 400,
+			Message:    "Coouldnt add to the cart",
+			Data:       proddata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	if err := wishlist.WishListUseCase.DeleteWishListItem(c, wishreq); err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "Cannot remove the wishlist item right now",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Successfully added to cart",
+		Data:       proddata,
+		Errors:     nil,
+	})
+
+}
+
+func (wishlist *WishListHandler) TransferAlltoCart(c *gin.Context)  {
+	
 }

@@ -32,32 +32,28 @@ func (j JSONB) Value() (driver.Value, error) {
 	return jByte, nil
 }
 
-type ProuctData interface {
-	itsmee()
-}
-
-type AdminsideProuctData struct {
-	ID               uint   `json:"id"`
-	Category         string `json:"category"`
-	SubCategory      string `json:"subcategory"`
-	Brand            string `json:"brand"`
-	Name             string `json:"name"`
-	Description      string `json:"description"`
-	Price            int    `json:"original_price"`
-	DiscountedPrice  int    `json:"discounted_price"`
-	Stock            int    `json:"stock"`
-	Specifications   JSONB  `json:"specifications"`
-	IsActive         bool   `json:"is_active"`
-	RelativeProducts string `json:"relative_products"`
-	UpdatedBy        string `json:"updated_by"`
+type ProuctData struct {
+	ID               uint    `json:"id"`
+	Category         string  `json:"category"`
+	SubCategory      string  `json:"subcategory"`
+	Brand            string  `json:"brand"`
+	Name             string  `json:"name"`
+	Description      string  `json:"description"`
+	Price            int     `json:"original_price"`
+	DiscountedPrice  int     `json:"discounted_price"`
+	Stock            int     `json:"stock"`
+	Specifications   JSONB   `json:"specifications"`
+	IsActive         bool    `json:"is_active"`
+	RelativeProducts *string `json:"relative_products"`
+	UpdatedBy        string  `json:"updated_by"`
 	UpdatedAt        time.Time
+	CartandWishList
 }
 
-func (admnproduct *AdminsideProuctData) itsmee() {
-	
+type CartandWishList struct {
+	AddedToCart     bool `json:"added_to_cart"`
+	AddedToWishList bool `json:"added_to_wishlist"`
 }
-
-
 
 type BrandData struct {
 	ID   uint   `json:"id"`

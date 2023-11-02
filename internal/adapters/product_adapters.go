@@ -135,3 +135,39 @@ func (product *ProductDataBase) GetProductByID(id uint) (responce.ProuctData, er
 	return products, product.DB.Raw(query, id).Scan(&products).Error
 
 }
+
+func (product *ProductDataBase) GetPriceByID(id uint) (int, error) {
+
+	var price int
+
+	query := `SELECT price FROM products WHERE id = $1`
+
+	return price, product.DB.Raw(query, id).Scan(&price).Error
+
+}
+
+func (product *ProductDataBase) IncreaseStock(id uint, stock int) error {
+
+	query := `UPDATE products SET stock = stock + $1 WHERE id = $2`
+
+	return product.DB.Exec(query, id).Error
+
+}
+
+func (product *ProductDataBase) DecreaseStock(id uint, stock int) error {
+
+	query := `UPDATE products SET stock = stock - $1 WHERE id = $2 AND stock >= $1 RETURNING stock`
+
+	result := product.DB.Exec(query, stock, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("insufficient stock for product with id %d", id)
+	}
+
+	return nil
+
+}

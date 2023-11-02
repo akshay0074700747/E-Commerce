@@ -22,7 +22,7 @@ func (wishlist *WishListAdapter) CreateWishList(email string) error {
 
 	query := `INSERT INTO wish_lists (email) VALUES($1)`
 
-	return wishlist.DB.Raw(query, email).Error
+	return wishlist.DB.Exec(query, email).Error
 
 }
 
@@ -30,7 +30,7 @@ func (wishlist *WishListAdapter) AddToWishList(wishreq helperstructs.WishListIte
 
 	query := `INSERT INTO wish_list_items (wish_list_id,product_id) VALUES($1,$2)`
 
-	return wishlist.DB.Raw(query, wishreq.WishListID, wishreq.ProductId).Error
+	return wishlist.DB.Exec(query, wishreq.WishListID, wishreq.ProductId).Error
 
 }
 
@@ -61,5 +61,33 @@ func (wishlist *WishListAdapter) GetProductByID(id uint) (responce.ProuctData, e
 	query := `SELECT * FROM products WHERE id = $1`
 
 	return products, wishlist.DB.Raw(query, id).Scan(&products).Error
+
+}
+
+func (wishlist *WishListAdapter) GetItemByProductID(wishlist_id, product_id uint) (responce.WishListItemsData, error) {
+
+	var item responce.WishListItemsData
+
+	query := `SELECT * FROM wish_list_items WHERE wish_list_id = $1 AND product_id = $2`
+
+	return item, wishlist.DB.Raw(query, wishlist_id, product_id).Scan(&item).Error
+
+}
+
+func (wishlist *WishListAdapter) DeleteWishListItem(wishlistreq helperstructs.WishListItemsReq) error {
+
+	query := `DELETE FROM wish_list_items WHERE wish_list_id = $1 AND product_id = $2`
+
+	return wishlist.DB.Exec(query, wishlistreq.WishListID, wishlistreq.ProductId).Error
+
+}
+
+func (wishlist *WishListAdapter) TruncateCart(wishlist_id uint) ([]responce.WishListItemsData, error) {
+
+	var items []responce.WishListItemsData
+
+	query := `DELETE FROM wish_list_items WHERE wish_list_id = $1 RETURNING product_id`
+
+	return items, wishlist.DB.Raw(query, wishlist_id).Scan(&items).Error
 
 }

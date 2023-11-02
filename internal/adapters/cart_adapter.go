@@ -20,9 +20,9 @@ func NewCartAdapter(db *gorm.DB) repositories.CartRepo {
 
 func (cart *CartAdapter) CreateCart(email string) error {
 
-	query := `INSERT INTO carts (email,created_at) VALUES($1,NOW()) RETURNING id,email,created_at`
+	query := `INSERT INTO carts (email,created_at) VALUES($1,NOW())`
 
-	return cart.DB.Raw(query, email).Error
+	return cart.DB.Exec(query, email).Error
 
 }
 
@@ -30,7 +30,7 @@ func (cart *CartAdapter) AddToCart(cartreq helperstructs.CartItemReq) error {
 
 	query := `INSERT INTO cart_items (cart_id,product_id,quantity,added_at) VALUES($1,$2,$3,NOW())`
 
-	return cart.DB.Raw(query, cartreq.CartID, cartreq.ProductId, cartreq.Quantity).Error
+	return cart.DB.Exec(query, cartreq.CartID, cartreq.ProductId, cartreq.Quantity).Error
 
 }
 
@@ -64,12 +64,38 @@ func (cart *CartAdapter) GetProductByID(id uint) (responce.ProuctData, error) {
 
 }
 
-func (cart *CartAdapter) GetItemByProductID(id uint) (responce.CartItemData, error) {
+func (cart *CartAdapter) GetItemByProductID(cart_id, product_id uint) (responce.CartItemData, error) {
 
 	var item responce.CartItemData
 
-	query := `SELECT * FROM cart_items WHERE product_id = $1`
+	query := `SELECT * FROM cart_items WHERE cart_id = $1 AND product_id = $2`
 
-	return item, cart.DB.Raw(query, id).Scan(&item).Error
+	return item, cart.DB.Raw(query, cart_id, product_id).Scan(&item).Error
+
+}
+
+func (cart *CartAdapter) UpdateQuantity(cartreq helperstructs.CartItemReq) error {
+
+	query := `UPDATE cart_items SET quantity = $1 WHERE cart_id = $2 AND product_id = $3`
+
+	return cart.DB.Exec(query, cartreq.Quantity, cartreq.CartID, cartreq.ProductId).Error
+
+}
+
+func (cart *CartAdapter) DeleteCartItem(cartreq helperstructs.CartItemReq) error {
+
+	query := `DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2`
+
+	return cart.DB.Exec(query, cartreq.CartID, cartreq.ProductId).Error
+
+}
+
+func (cart *CartAdapter) TruncateCart(cart_id uint) ([]responce.CartItemData, error) {
+
+	var items []responce.CartItemData
+
+	query := `DELETE FROM cart_items WHERE cart_id = $1 RETURNING product_id,quantity`
+
+	return items, cart.DB.Raw(query, cart_id).Scan(&items).Error
 
 }

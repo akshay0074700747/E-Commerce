@@ -36,6 +36,10 @@ func (un *UnblockUsers) Start() {
 				fmt.Println(err.Error())
 			}
 
+			if err := un.DB.Exec(`UPDATE orders SET is_shipped = true WHERE shipment_date < NOW();`).Error; err != nil {
+				fmt.Println(err.Error())
+			}
+
 			fmt.Println("croneeee woooorked.........................................")
 
 		}

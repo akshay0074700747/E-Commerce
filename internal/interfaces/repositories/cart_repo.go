@@ -11,5 +11,8 @@ type CartRepo interface {
 	GetCartitems(id uint) ([]responce.CartItemData, error)
 	GetCartID(email string) (uint, error)
 	GetProductByID(id uint) (responce.ProuctData, error)
-	GetItemByProductID(id uint) (responce.CartItemData, error)
+	GetItemByProductID(cart_id, product_id uint) (responce.CartItemData, error)
+	UpdateQuantity(cartreq helperstructs.CartItemReq) error
+	DeleteCartItem(cartreq helperstructs.CartItemReq) error
+	TruncateCart(cart_id uint) ([]responce.CartItemData, error)
 }

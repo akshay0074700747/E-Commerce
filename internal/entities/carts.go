@@ -16,7 +16,7 @@ type CartItems struct {
 	ID        uint `gorm:"primaryKey;unique;not null"`
 	CartID    uint `gorm:"not null"`
 	ProductId uint `gorm:"not null"`
-	Quantity  int
+	Quantity  int  `gorm:"default:1"`
 	AddedAt   time.Time
 }
 

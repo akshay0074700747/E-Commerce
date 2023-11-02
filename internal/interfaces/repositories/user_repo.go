@@ -8,5 +8,10 @@ import (
 type UserRepo interface {
 	UserSignUp(user helperstructs.UserReq) (responce.UserData, error)
 	GetByEmail(user helperstructs.UserReq) (responce.UserData, error)
-	ReportAdmin(reportreq helperstructs.ReportReq) (error)
+	ReportAdmin(reportreq helperstructs.ReportReq) error
+	IncrementWallet(email string, money int) error
+	DecrementWallet(email string, money int) error
+	UpdateUserData(user helperstructs.UserReq) error
+	CheckPassword(email string) (string, error)
+	ChangePassword(user helperstructs.UserReq) error
 }

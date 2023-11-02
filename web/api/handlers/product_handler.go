@@ -63,13 +63,11 @@ func (product *ProductHandler) GetProducts(c *gin.Context) {
 
 	email, exists := c.Get("userhandler")
 
-	if exists {
-		var userproduct = struct{
-			Products 
-		}
+	if !exists {
+		email = ""
 	}
 
-	productdata, err := product.ProductUsecase.GetProducts(c,email.(string))
+	productdata, err := product.ProductUsecase.GetProducts(c, email.(string))
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{
@@ -168,9 +166,15 @@ func (product *ProductHandler) DeleteProduct(c *gin.Context) {
 
 func (product *ProductHandler) FilterByCategory(c *gin.Context) {
 
+	email, exists := c.Get("userhandler")
+
+	if !exists {
+		email = ""
+	}
+
 	category := c.Param("category")
 
-	productdata, err := product.ProductUsecase.GetProducts(c)
+	productdata, err := product.ProductUsecase.GetProducts(c, email.(string))
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{
@@ -201,10 +205,16 @@ func (product *ProductHandler) FilterByCategory(c *gin.Context) {
 
 func (product *ProductHandler) FilterByCategoryAndSub(c *gin.Context) {
 
+	email, exists := c.Get("userhandler")
+
+	if !exists {
+		email = ""
+	}
+
 	category := c.Param("category")
 	sub := c.Param("sub")
 
-	productdata, err := product.ProductUsecase.GetProducts(c)
+	productdata, err := product.ProductUsecase.GetProducts(c, email.(string))
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{
@@ -270,9 +280,15 @@ func (product *ProductHandler) UpdateStocks(c *gin.Context) {
 
 func (product *ProductHandler) GetProductByID(c *gin.Context) {
 
+	email, exists := c.Get("userhandler")
+
+	if !exists {
+		email = ""
+	}
+
 	id := c.Param("id")
 
-	productdata, err := product.ProductUsecase.GetProductByID(c, id)
+	productdata, err := product.ProductUsecase.GetProductByID(c, id, email.(string))
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{

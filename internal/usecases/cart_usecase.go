@@ -35,7 +35,7 @@ func (cart *CartUseCase) AddToCart(ctx context.Context, cartreq helperstructs.Ca
 
 	cartreq.CartID = cartid
 
-	item, _ := cart.CartRepo.GetItemByProductID(cartreq.ProductId)
+	item, _ := cart.CartRepo.GetItemByProductID(cartreq.CartID, cartreq.ProductId)
 
 	if item.ProductId != 0 {
 		return responce.ProuctData{}, fmt.Errorf("the selected item is already present in the cart")
@@ -78,5 +78,33 @@ func (cart *CartUseCase) GetCartitems(ctx context.Context, email string) ([]resp
 	}
 
 	return productdata, nil
+
+}
+
+func (cart *CartUseCase) UpdateQuantity(ctx context.Context, cartreq helperstructs.CartItemReq) error {
+
+	cart_id, err := cart.CartRepo.GetCartID(cartreq.Email)
+
+	if err != nil {
+		return err
+	}
+
+	cartreq.CartID = cart_id
+
+	return cart.CartRepo.UpdateQuantity(cartreq)
+
+}
+
+func (cart *CartUseCase) DeleteCartItem(ctx context.Context, cartreq helperstructs.CartItemReq) error {
+
+	cart_id, err := cart.CartRepo.GetCartID(cartreq.Email)
+
+	if err != nil {
+		return err
+	}
+
+	cartreq.CartID = cart_id
+
+	return cart.CartRepo.DeleteCartItem(cartreq)
 
 }
