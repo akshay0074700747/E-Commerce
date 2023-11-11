@@ -12,7 +12,7 @@ import (
 	"github.com/google/wire"
 )
 
-func InitializeAPI1(config config.Config) (*routes.GinEngine, error) {
+func InitializeAPI1(config config.Config, togglecrone chan bool, listencrone chan int) (*routes.GinEngine, error) {
 
 	wire.Build(database.Connect_to,
 		adapters.NewUserRepository,
@@ -27,6 +27,9 @@ func InitializeAPI1(config config.Config) (*routes.GinEngine, error) {
 		adapters.NewWishListAdapter,
 		adapters.NewAddressAdapter,
 		adapters.NewOrderAdapter,
+		adapters.NewCouponAdapter,
+		adapters.NewPaymentAdapter,
+		adapters.NewReviewAdapter,
 		usecases.NewUserUseCase,
 		usecases.NewAdminUsecase,
 		usecases.NewSuAdminUsecase,
@@ -38,6 +41,9 @@ func InitializeAPI1(config config.Config) (*routes.GinEngine, error) {
 		usecases.NewWishListUseCase,
 		usecases.NewAddressUsecase,
 		usecases.NewOrderUsecase,
+		usecases.NewCouponUsecase,
+		usecases.NewPaymentUsecase,
+		usecases.NewReviewUsecase,
 		handlers.NewUserHandler,
 		handlers.NewAdminHandler,
 		handlers.NewSuAdminHandler,
@@ -49,6 +55,9 @@ func InitializeAPI1(config config.Config) (*routes.GinEngine, error) {
 		handlers.NewWishListHandler,
 		handlers.NewAddressHandler,
 		handlers.NewOrderHandler,
+		handlers.NewCouponHandler,
+		handlers.NewPaymentHandler,
+		handlers.NewReviewHandler,
 		routes.NewGinEngine)
 
 	return &routes.GinEngine{}, nil

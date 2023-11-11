@@ -4,10 +4,12 @@ import (
 	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
 	"ecommerce/web/api/middlewares/jwt"
 	"ecommerce/web/config"
+	"ecommerce/web/helpers"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +17,17 @@ import (
 type AdminHandler struct {
 	AdminUsecase usecasesinterface.AdminUsecaseInterface
 	Config       config.Config
+	ToggleCrone  chan bool
+	ListenCrone  chan int
 }
 
-func NewAdminHandler(usecase usecasesinterface.AdminUsecaseInterface, config config.Config) *AdminHandler {
+func NewAdminHandler(usecase usecasesinterface.AdminUsecaseInterface, config config.Config, togglecrone chan bool, listencrone chan int) *AdminHandler {
 
 	return &AdminHandler{
 		AdminUsecase: usecase,
 		Config:       config,
+		ToggleCrone:  togglecrone,
+		ListenCrone:  listencrone,
 	}
 
 }
@@ -170,6 +176,126 @@ func (ad *AdminHandler) Logout(c *gin.Context) {
 		StatusCode: 200,
 		Message:    "Logged out successfully",
 		Data:       nil,
+		Errors:     nil,
+	})
+
+}
+
+func (ad *AdminHandler) GetAdminDashBoard(c *gin.Context) {
+
+	dashboard, err := ad.AdminUsecase.GetAdminDashBoard(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldn't get the dashboard",
+			Data:       dashboard,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrieved Admin DashBoard Successfully",
+		Data:       dashboard,
+		Errors:     nil,
+	})
+
+}
+
+func (ad *AdminHandler) StartOrStopCron(c *gin.Context) {
+
+	status := c.Param("status")
+
+	intstat, err := strconv.Atoi(status)
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't bind url param",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	err, boolstaat := helpers.ToggleCroneHelper(intstat)
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "already in the same state or status code doesnt exist",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	fmt.Println("dfcuyyguytgfuyuy",boolstaat)
+
+	if boolstaat {
+		ad.ListenCrone <- 1
+		ad.ToggleCrone <- true
+	} else {
+		ad.ToggleCrone <- false
+	}
+
+	fmt.Println("okkkkkkkkkkkkkkkkkkk")
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "changed the crone job status",
+		Data:       nil,
+		Errors:     nil,
+	})
+
+}
+
+func (ad *AdminHandler) SalesReport(c *gin.Context) {
+
+	code := c.Param("code")
+
+	intcode, err := strconv.Atoi(code)
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "can't bind url param",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	timee, err := helpers.SalesReportHelper(intcode)
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "the given code doesnt exist",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	salesdata, err := ad.AdminUsecase.GetSalesReport(c, timee)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldnt get sales report",
+			Data:       salesdata,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrieved sales report successfully",
+		Data:       salesdata,
 		Errors:     nil,
 	})
 

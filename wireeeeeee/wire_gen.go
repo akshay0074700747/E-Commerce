@@ -18,7 +18,7 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
+func InitializeAPI(config2 config.Config, togglecrone chan bool, listencrone chan int) (*routes.GinEngine, error) {
 	db := database.Connect_to(config2)
 	userRepo := adapters.NewUserRepository(db)
 	userUsecaseInterface := usecases.NewUserUseCase(userRepo)
@@ -30,11 +30,12 @@ func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
 	addessUsecaseInterface := usecases.NewAddressUsecase(addressRepo)
 	orderRepo := adapters.NewOrderAdapter(db)
 	productsRepo := adapters.NewProductDataBase(db)
-	orderUsecaseInterface := usecases.NewOrderUsecase(orderRepo, cartRepo, productsRepo, userRepo)
+	discountRepo := adapters.NewDiscountAdapter(db)
+	orderUsecaseInterface := usecases.NewOrderUsecase(orderRepo, cartRepo, productsRepo, userRepo, discountRepo)
 	userHandler := handlers.NewUserHandler(config2, userUsecaseInterface, cartUseCaseInterface, wishListUseCaseInterface, addessUsecaseInterface, orderUsecaseInterface)
 	adminRepo := adapters.NewAdminRepository(db)
 	adminUsecaseInterface := usecases.NewAdminUsecase(adminRepo)
-	adminHandler := handlers.NewAdminHandler(adminUsecaseInterface, config2)
+	adminHandler := handlers.NewAdminHandler(adminUsecaseInterface, config2, togglecrone, listencrone)
 	suAdminRepo := adapters.NewSuAdminRepository(db)
 	suAdminUsecaseInterface := usecases.NewSuAdminUsecase(suAdminRepo)
 	suAdminHandler := handlers.NewSuAdminHandler(suAdminUsecaseInterface, config2)
@@ -46,7 +47,6 @@ func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
 	brandRepo := adapters.NewBrandRepository(db)
 	brandUsecaseInterface := usecases.NewBrandUsecase(brandRepo)
 	brandHandler := handlers.NewBrandHandler(brandUsecaseInterface)
-	discountRepo := adapters.NewDiscountAdapter(db)
 	discountUsecaseInterface := usecases.NewDiscountUsecase(discountRepo)
 	discountHandler := handlers.NewDiscountHandler(discountUsecaseInterface)
 	userAuthentication := middlewares.NewUserAuthentication(db)
@@ -54,6 +54,15 @@ func InitializeAPI(config2 config.Config) (*routes.GinEngine, error) {
 	wishListHandler := handlers.NewWishListHandler(wishListUseCaseInterface, cartUseCaseInterface)
 	addressHandler := handlers.NewAddressHandler(addessUsecaseInterface)
 	orderHandler := handlers.NewOrderHandler(orderUsecaseInterface)
-	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler, categoryHandler, productHandler, brandHandler, discountHandler, userAuthentication, cartHandler, wishListHandler, addressHandler, orderHandler)
+	paymentRepo := adapters.NewPaymentAdapter(db)
+	paymentUsecaseInterface := usecases.NewPaymentUsecase(paymentRepo)
+	paymentHandler := handlers.NewPaymentHandler(paymentUsecaseInterface, orderUsecaseInterface, config2)
+	reviewRepo := adapters.NewReviewAdapter(db)
+	reviewUsecaseInterface := usecases.NewReviewUsecase(reviewRepo)
+	reviewHandler := handlers.NewReviewHandler(reviewUsecaseInterface)
+	coupons := adapters.NewCouponAdapter(db)
+	couponUsecaseInterface := usecases.NewCouponUsecase(coupons)
+	couponHandler := handlers.NewCouponHandler(couponUsecaseInterface)
+	ginEngine := routes.NewGinEngine(userHandler, adminHandler, suAdminHandler, categoryHandler, productHandler, brandHandler, discountHandler, userAuthentication, cartHandler, wishListHandler, addressHandler, orderHandler, paymentHandler, reviewHandler, couponHandler)
 	return ginEngine, nil
 }

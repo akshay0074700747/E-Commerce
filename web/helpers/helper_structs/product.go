@@ -29,6 +29,19 @@ type DiscountReq struct {
 }
 
 type StockReq struct {
-	ID uint `json:"id"`
-	Stock int `json:"stock"`
+	ID    uint `json:"id"`
+	Stock int  `json:"stock"`
+}
+
+type CouponReq struct {
+	ID                   uint   `json:"id"`
+	OFF                  int    `json:"off"`
+	GiveOnPurchaseAbove  int    `json:"give_onpurchase_above"`
+	ApplyOnPurchaseAbove int    `json:"apply_onpurchase_above"`
+	Description          string `json:"description"`
+}
+
+type AddCouponforUser struct {
+	Email  string `json:"email"`
+	Coupon uint   `json:"coupon"`
 }

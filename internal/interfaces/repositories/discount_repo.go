@@ -11,4 +11,5 @@ type DiscountRepo interface {
 	AddDiscount(discountreq helperstructs.DiscountReq) (responce.DiscountData, error)
 	UpdateDiscount(discountreq helperstructs.DiscountReq) (responce.DiscountData, error)
 	DeleteDiscount(id uint) error
+	GetByProductID(prod_id uint) (responce.DiscountData,error)
 }

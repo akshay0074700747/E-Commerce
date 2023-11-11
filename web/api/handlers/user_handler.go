@@ -7,6 +7,7 @@ import (
 	"ecommerce/web/config"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -368,6 +369,16 @@ func (cr *UserHandler) ChangePassword(c *gin.Context) {
 			Message:    "can't bind",
 			Data:       nil,
 			Errors:     err.Error(),
+		})
+		return
+	}
+
+	if userreq.OldPassword == "" {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "you should enter the existing password as well to proceed",
+			Data:       nil,
+			Errors:     errors.New("you should enter the existing password as well to proceed"),
 		})
 		return
 	}

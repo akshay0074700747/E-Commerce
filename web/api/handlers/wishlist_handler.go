@@ -193,6 +193,6 @@ func (wishlist *WishListHandler) AddItemtoCart(c *gin.Context) {
 
 }
 
-func (wishlist *WishListHandler) TransferAlltoCart(c *gin.Context)  {
-	
+func (wishlist *WishListHandler) TransferAlltoCart(c *gin.Context) {
+
 }

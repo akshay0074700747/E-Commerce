@@ -61,13 +61,16 @@ func (product *ProductHandler) AddProduct(c *gin.Context) {
 
 func (product *ProductHandler) GetProducts(c *gin.Context) {
 
+	count := c.DefaultQuery("count", "4")
+	page := c.DefaultQuery("page", "1")
+
 	email, exists := c.Get("userhandler")
 
 	if !exists {
 		email = ""
 	}
 
-	productdata, err := product.ProductUsecase.GetProducts(c, email.(string))
+	productdata, err := product.ProductUsecase.GetProducts(c, email.(string), count, page)
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{
@@ -166,6 +169,9 @@ func (product *ProductHandler) DeleteProduct(c *gin.Context) {
 
 func (product *ProductHandler) FilterByCategory(c *gin.Context) {
 
+	count := c.DefaultQuery("count", "4")
+	page := c.DefaultQuery("page", "1")
+
 	email, exists := c.Get("userhandler")
 
 	if !exists {
@@ -174,7 +180,7 @@ func (product *ProductHandler) FilterByCategory(c *gin.Context) {
 
 	category := c.Param("category")
 
-	productdata, err := product.ProductUsecase.GetProducts(c, email.(string))
+	productdata, err := product.ProductUsecase.GetProducts(c, email.(string), count, page)
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{
@@ -205,6 +211,9 @@ func (product *ProductHandler) FilterByCategory(c *gin.Context) {
 
 func (product *ProductHandler) FilterByCategoryAndSub(c *gin.Context) {
 
+	count := c.DefaultQuery("count", "4")
+	page := c.DefaultQuery("page", "1")
+
 	email, exists := c.Get("userhandler")
 
 	if !exists {
@@ -214,7 +223,7 @@ func (product *ProductHandler) FilterByCategoryAndSub(c *gin.Context) {
 	category := c.Param("category")
 	sub := c.Param("sub")
 
-	productdata, err := product.ProductUsecase.GetProducts(c, email.(string))
+	productdata, err := product.ProductUsecase.GetProducts(c, email.(string), count, page)
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, responce.Response{

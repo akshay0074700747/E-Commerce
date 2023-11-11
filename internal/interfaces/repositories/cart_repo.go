@@ -14,5 +14,5 @@ type CartRepo interface {
 	GetItemByProductID(cart_id, product_id uint) (responce.CartItemData, error)
 	UpdateQuantity(cartreq helperstructs.CartItemReq) error
 	DeleteCartItem(cartreq helperstructs.CartItemReq) error
-	TruncateCart(cart_id uint) ([]responce.CartItemData, error)
+	TruncateCart(cart_id uint) (error)
 }

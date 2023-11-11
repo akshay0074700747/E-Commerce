@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	DATABASE_ADDR string `validate:"required"`
-	SECRET        string `validate:"required"`
-	EMAIL         string `validate:"required"`
-	PASSWORD      string `validate:"required"`
+	DATABASE_ADDR  string `validate:"required"`
+	SECRET         string `validate:"required"`
+	EMAIL          string `validate:"required"`
+	PASSWORD       string `validate:"required"`
+	RAZORPAYID     string `validate:"required"`
+	RAZORPAYSECRET string `validate:"required"`
 }
 
 func LoadConfig() (Config, error) {
@@ -27,6 +29,8 @@ func LoadConfig() (Config, error) {
 	config.SECRET = os.Getenv("SECRET")
 	config.EMAIL = os.Getenv("EMAIL")
 	config.PASSWORD = os.Getenv("PASSWORD")
+	config.RAZORPAYID = os.Getenv("RAZORPAYID")
+	config.RAZORPAYSECRET = os.Getenv("RAZORPAYSECRET")
 
 	// Perform validation
 	validate := validator.New()

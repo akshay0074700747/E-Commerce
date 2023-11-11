@@ -88,7 +88,7 @@ func (c *userUseCase) ChangePassword(ctx context.Context, user helperstructs.Use
 		return err
 	}
 
-	if err := helpers.VerifyPassword(user.Password, hashpass); err != nil {
+	if err := helpers.VerifyPassword(user.OldPassword, hashpass); err != nil {
 		return err
 	}
 

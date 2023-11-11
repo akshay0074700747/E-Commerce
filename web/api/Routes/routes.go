@@ -22,7 +22,10 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	carthandler *handlers.CartHandler,
 	wishlisthandler *handlers.WishListHandler,
 	addresshandler *handlers.AddressHandler,
-	orderhandler *handlers.OrderHandler) *GinEngine {
+	orderhandler *handlers.OrderHandler,
+	paymenthandler *handlers.PaymentHandler,
+	reviewhandler *handlers.ReviewHandler,
+	couponhandler *handlers.CouponHandler) *GinEngine {
 
 	engine := gin.New()
 
@@ -30,6 +33,8 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 
 	engine.POST("/user/login", userhandler.UserLogin)
 	engine.POST("/user/signup", userhandler.UserSignUp)
+	engine.GET("user/orders/payment/:orderId", paymenthandler.MakePayment)
+	engine.GET("/payment-handler", paymenthandler.PaymentSuccess)
 
 	user := engine.Group("/user")
 	user.Use(authentication.UserAuth())
@@ -40,8 +45,10 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		{
 
 			product.GET("", prodhandler.GetProducts)
+			// product.GET("/:id/review",prodhandler.)
 			product.GET("/:category", prodhandler.FilterByCategory)
 			product.GET("/:category/:sub", prodhandler.FilterByCategoryAndSub)
+			product.GET("/review/:id",reviewhandler.GetReviewsByID)
 
 		}
 
@@ -52,7 +59,8 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 			cart.POST("/add", carthandler.AddToCart)
 			cart.PATCH("/update/quantity", carthandler.UpdateCartItemQuantity)
 			cart.DELETE("/delete", carthandler.DeleteCartItem)
-			cart.POST("/checkout/cod", orderhandler.AddOrderCOD)
+			cart.POST("/checkout", orderhandler.CheckoutCart)
+			cart.POST("/availablecoupons",couponhandler.GetAllCouponsByEmail)
 
 		}
 
@@ -61,6 +69,15 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 			order.GET("", orderhandler.GetAllOrdersByEmail)
 			order.POST("/cancel", orderhandler.CancelOrder)
 			order.POST("/return", orderhandler.ReturnOrder)
+
+			review := order.Group("/review")
+			{
+				review.GET("",reviewhandler.GetReviwByEmail)
+				review.POST("/add",reviewhandler.CreateReview)
+				review.PATCH("/update",reviewhandler.UpdateReview)
+				review.DELETE("/delete/:id",reviewhandler.DeleteReview)
+			}
+
 		}
 
 		wishlist := user.Group("/wishlist")
@@ -101,8 +118,11 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 	admin.Use(authentication.UserAuth(), middlewares.AdminAuth())
 	{
 
+		admin.GET("", adminhandler.GetAdminDashBoard)
 		admin.GET("/users", adminhandler.GetAllUsers)
 		admin.POST("/report", adminhandler.ReportUser)
+		admin.GET("/sales/:filterby", adminhandler.SalesReport)
+		admin.POST("/crone/:status", adminhandler.StartOrStopCron)
 
 		categories := admin.Group("/categories")
 		{
@@ -113,6 +133,17 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 			categories.DELETE("/delete/:id", cathandler.DeleteCategory)
 
 		}
+
+		coupon := admin.Group("/coupons")
+		{
+
+			coupon.GET("",couponhandler.GetAllCoupons)
+			coupon.POST("/add",couponhandler.AddCoupon)
+			coupon.PATCH("/update",couponhandler.UpdateCoupon)
+			coupon.DELETE("/delete/:id",couponhandler.DeleteCoupon)
+
+		}
+
 		brands := admin.Group("/brands")
 		{
 
@@ -171,5 +202,6 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 }
 
 func (sh *GinEngine) Start() {
+	sh.engine.LoadHTMLGlob("payment.html")
 	sh.engine.Run(":3000")
 }

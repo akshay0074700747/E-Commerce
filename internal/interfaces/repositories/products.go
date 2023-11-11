@@ -7,7 +7,7 @@ import (
 
 type ProductsRepo interface {
 	AddProduct(productreq helperstructs.ProductReq) (responce.ProuctData, error)
-	GetProducts() ([]responce.ProuctData, error)
+	GetProducts(offset, count int) ([]responce.ProuctData, error)
 	UpdateProduct(productreq helperstructs.ProductReq) (responce.ProuctData, error)
 	DeleteProduct(product_id uint) error
 	FindRelatedProducts(cat_id uint) ([]uint, error)
@@ -19,4 +19,5 @@ type ProductsRepo interface {
 	GetPriceByID(id uint) (int, error)
 	IncreaseStock(id uint, stock int) error
 	DecreaseStock(id uint, stock int) error
+	GetRatingByID(id uint) (float32,error)
 }

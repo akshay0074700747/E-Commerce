@@ -34,14 +34,14 @@ func (product *ProductDataBase) AddProduct(productreq helperstructs.ProductReq) 
 
 }
 
-func (product *ProductDataBase) GetProducts() ([]responce.ProuctData, error) {
+func (product *ProductDataBase) GetProducts(offset, count int) ([]responce.ProuctData, error) {
 
 	var productdta []responce.ProuctData
 
 	selectquery := `SELECT products.*,categories.category,categories.sub_category FROM products
-	INNER JOIN categories ON products.category = categories.id`
+	INNER JOIN categories ON products.category = categories.id OFFSET $1 LIMIT $2`
 
-	if err := product.DB.Raw(selectquery).Scan(&productdta).Error; err != nil {
+	if err := product.DB.Raw(selectquery, offset, count).Scan(&productdta).Error; err != nil {
 		return productdta, err
 	}
 
@@ -150,7 +150,7 @@ func (product *ProductDataBase) IncreaseStock(id uint, stock int) error {
 
 	query := `UPDATE products SET stock = stock + $1 WHERE id = $2`
 
-	return product.DB.Exec(query, id).Error
+	return product.DB.Exec(query, stock, id).Error
 
 }
 
@@ -169,5 +169,17 @@ func (product *ProductDataBase) DecreaseStock(id uint, stock int) error {
 	}
 
 	return nil
+
+}
+
+func (product *ProductDataBase) GetRatingByID(id uint) (float32, error) {
+
+	var rating float32
+
+	query := `SELECT AVG(rating) FROM reviews WHERE product = $1`
+
+	product.DB.Raw(query, id).Scan(&rating)
+
+	return rating, nil
 
 }

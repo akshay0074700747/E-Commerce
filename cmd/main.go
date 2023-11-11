@@ -15,7 +15,10 @@ func main() {
 		panic(err.Error())
 	}
 
-	server, err := wireeeeeee.InitializeAPI(config)
+	togglecrone := make(chan bool, 6)
+	listencrone := make(chan int, 1)
+
+	server, err := wireeeeeee.InitializeAPI(config, togglecrone, listencrone)
 
 	if err != nil {
 		panic("Couldnt start server")
@@ -25,7 +28,7 @@ func main() {
 
 	unblock_crone := cronejobs.NewUnblockUsers(cronedb)
 
-	unblock_crone.Start()
+	go unblock_crone.Start(togglecrone, listencrone)
 
 	server.Start()
 

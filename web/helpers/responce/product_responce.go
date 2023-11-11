@@ -40,6 +40,7 @@ type ProuctData struct {
 	Name             string  `json:"name"`
 	Description      string  `json:"description"`
 	Price            int     `json:"original_price"`
+	Rating           float32 `json:"rating"`
 	DiscountedPrice  int     `json:"discounted_price"`
 	Stock            int     `json:"stock"`
 	Specifications   JSONB   `json:"specifications"`
@@ -66,4 +67,12 @@ type DiscountData struct {
 	Discount  float32   `json:"discount"`
 	StartDate time.Time `json:"start_date"`
 	EndDate   time.Time `json:"end_date"`
+}
+
+type CouponData struct {
+	ID                   uint   `json:"id"`
+	OFF                  int    `json:"off"`
+	GiveOnPurchaseAbove  int    `json:"give_onpurchase_above"`
+	ApplyOnPurchaseAbove int    `json:"apply_onpurchase_above"`
+	Description          string `json:"description"`
 }

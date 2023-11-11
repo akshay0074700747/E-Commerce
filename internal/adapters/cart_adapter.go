@@ -90,12 +90,10 @@ func (cart *CartAdapter) DeleteCartItem(cartreq helperstructs.CartItemReq) error
 
 }
 
-func (cart *CartAdapter) TruncateCart(cart_id uint) ([]responce.CartItemData, error) {
+func (cart *CartAdapter) TruncateCart(cart_id uint) error {
 
-	var items []responce.CartItemData
+	query := `DELETE FROM cart_items WHERE cart_id = $1`
 
-	query := `DELETE FROM cart_items WHERE cart_id = $1 RETURNING product_id,quantity`
-
-	return items, cart.DB.Raw(query, cart_id).Scan(&items).Error
+	return cart.DB.Exec(query, cart_id).Error
 
 }

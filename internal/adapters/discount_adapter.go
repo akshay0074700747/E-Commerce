@@ -60,6 +60,20 @@ func (discount *DiscountAdapter) GetByID(category_id uint) (responce.DiscountDat
 
 	selectquery := `SELECT * FROM discounts WHERE category = $1`
 
-	return discountdata, discount.DB.Raw(selectquery, category_id).Scan(&discountdata).Error
+	discount.DB.Raw(selectquery, category_id).Scan(&discountdata)
+
+	return discountdata, nil
+
+}
+
+func (discount *DiscountAdapter) GetByProductID(prod_id uint) (responce.DiscountData, error) {
+
+	var discountdata responce.DiscountData
+
+	selectquery := `SELECT * FROM discounts WHERE category = (SELECT category FROM products WHERE id = $1)`
+
+	discount.DB.Raw(selectquery, prod_id).Scan(&discountdata)
+
+	return discountdata, nil
 
 }

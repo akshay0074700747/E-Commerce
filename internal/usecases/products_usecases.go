@@ -38,9 +38,20 @@ func (product *ProductUsecases) AddProduct(ctx context.Context, productreq helpe
 
 }
 
-func (product *ProductUsecases) GetProducts(ctx context.Context, email string) ([]responce.ProuctData, error) {
+func (product *ProductUsecases) GetProducts(ctx context.Context, email, count, page string) ([]responce.ProuctData, error) {
 
-	productsdata, err := product.ProductRepo.GetProducts()
+	countt, err := strconv.Atoi(count)
+	pages, errr := strconv.Atoi(page)
+
+	if err != nil || errr != nil {
+		return []responce.ProuctData{}, fmt.Errorf("the give count or pages is not of type int")
+	}
+
+	offset := (pages - 1) * countt
+
+	productsdata, err := product.ProductRepo.GetProducts(offset, countt)
+
+	fmt.Println(productsdata)
 
 	if err != nil {
 		return productsdata, err
@@ -110,6 +121,12 @@ func (product *ProductUsecases) GetProducts(ctx context.Context, email string) (
 
 			if wishitem.ProductId != 0 {
 				productsdata[i].AddedToWishList = true
+			}
+
+			productsdata[i].Rating, err = product.ProductRepo.GetRatingByID(productsdata[i].ID)
+
+			if err != nil {
+				return productsdata, err
 			}
 
 		}
@@ -220,6 +237,12 @@ func (product *ProductUsecases) GetProductByID(ctx context.Context, id string, e
 
 		if wishitem.ProductId != 0 {
 			proddata.AddedToWishList = true
+		}
+
+		proddata.Rating, err = product.ProductRepo.GetRatingByID(proddata.ID)
+
+		if err != nil {
+			return proddata, err
 		}
 
 	}

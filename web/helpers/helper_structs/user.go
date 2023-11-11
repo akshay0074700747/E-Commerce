@@ -1,11 +1,12 @@
 package helperstructs
 
 type UserReq struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	Mobile   string `json:"mobile"`
-	Otp      string `json:"otp"`
+	Email       string `json:"email"`
+	Name        string `json:"name"`
+	Password    string `json:"password"`
+	OldPassword string `json:"old_password"`
+	Mobile      string `json:"mobile"`
+	Otp         string `json:"otp"`
 }
 
 type AddressReq struct {
@@ -17,4 +18,8 @@ type AddressReq struct {
 	District      string `json:"district"`
 	PO            string `json:"po"`
 	State         string `json:"state"`
+}
+
+type AddrID struct {
+	ID uint `json:"id"`
 }

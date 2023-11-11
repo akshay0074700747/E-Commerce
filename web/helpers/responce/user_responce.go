@@ -5,6 +5,7 @@ type UserData struct {
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	Mobile    string `json:"mobile"`
+	Wallet    int    `json:"wallet"`
 	Isblocked bool   `json:"isblocked"`
 }
 
@@ -19,8 +20,8 @@ type AddressData struct {
 	State         string `json:"state"`
 }
 
-type UserResponce struct{
+type UserResponce struct {
 	Userdata UserData
-	Address []AddressData
-	Orders []OrderData
+	Address  []AddressData
+	Orders   []OrderData
 }
