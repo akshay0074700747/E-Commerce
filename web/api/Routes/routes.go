@@ -48,7 +48,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 			// product.GET("/:id/review",prodhandler.)
 			product.GET("/:category", prodhandler.FilterByCategory)
 			product.GET("/:category/:sub", prodhandler.FilterByCategoryAndSub)
-			product.GET("/review/:id",reviewhandler.GetReviewsByID)
+			product.GET("/review/:id", reviewhandler.GetReviewsByID)
 
 		}
 
@@ -60,7 +60,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 			cart.PATCH("/update/quantity", carthandler.UpdateCartItemQuantity)
 			cart.DELETE("/delete", carthandler.DeleteCartItem)
 			cart.POST("/checkout", orderhandler.CheckoutCart)
-			cart.POST("/availablecoupons",couponhandler.GetAllCouponsByEmail)
+			cart.GET("/availablecoupons", couponhandler.GetAllCouponsByEmail)
 
 		}
 
@@ -72,10 +72,10 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 
 			review := order.Group("/review")
 			{
-				review.GET("",reviewhandler.GetReviwByEmail)
-				review.POST("/add",reviewhandler.CreateReview)
-				review.PATCH("/update",reviewhandler.UpdateReview)
-				review.DELETE("/delete/:id",reviewhandler.DeleteReview)
+				review.GET("", reviewhandler.GetReviwByEmail)
+				review.POST("/add", reviewhandler.CreateReview)
+				review.PATCH("/update", reviewhandler.UpdateReview)
+				review.DELETE("/delete/:id", reviewhandler.DeleteReview)
 			}
 
 		}
@@ -121,7 +121,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		admin.GET("", adminhandler.GetAdminDashBoard)
 		admin.GET("/users", adminhandler.GetAllUsers)
 		admin.POST("/report", adminhandler.ReportUser)
-		admin.GET("/sales/:filterby", adminhandler.SalesReport)
+		admin.GET("/sales/:code", adminhandler.SalesReport)
 		admin.POST("/crone/:status", adminhandler.StartOrStopCron)
 
 		categories := admin.Group("/categories")
@@ -137,10 +137,10 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 		coupon := admin.Group("/coupons")
 		{
 
-			coupon.GET("",couponhandler.GetAllCoupons)
-			coupon.POST("/add",couponhandler.AddCoupon)
-			coupon.PATCH("/update",couponhandler.UpdateCoupon)
-			coupon.DELETE("/delete/:id",couponhandler.DeleteCoupon)
+			coupon.GET("", couponhandler.GetAllCoupons)
+			coupon.POST("/add", couponhandler.AddCoupon)
+			coupon.PATCH("/update", couponhandler.UpdateCoupon)
+			coupon.DELETE("/delete/:id", couponhandler.DeleteCoupon)
 
 		}
 

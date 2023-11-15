@@ -6,6 +6,7 @@ type OrderReq struct {
 	ID                 uint      `json:"id"`
 	Email              string    `json:"email"`
 	AddrID             uint      `json:"addr_id"`
+	AppliedCoupon      uint      `json:"applied_coupon"`
 	OrderDate          time.Time `json:"order_date"`
 	ExpectedDeliveryBy time.Time `json:"expected_delivery"`
 	ShipmentDate       time.Time `json:"shipment_date"`

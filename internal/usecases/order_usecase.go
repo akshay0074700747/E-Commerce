@@ -16,9 +16,10 @@ type OrderUsecase struct {
 	ProductRepo  repositories.ProductsRepo
 	UserRepo     repositories.UserRepo
 	DiscountRepo repositories.DiscountRepo
+	CouponRepo   repositories.Coupons
 }
 
-func NewOrderUsecase(orderrepo repositories.OrderRepo, cartrepo repositories.CartRepo, productrepo repositories.ProductsRepo, userrepo repositories.UserRepo, discountrepo repositories.DiscountRepo) usecasesinterface.OrderUsecaseInterface {
+func NewOrderUsecase(orderrepo repositories.OrderRepo, cartrepo repositories.CartRepo, productrepo repositories.ProductsRepo, userrepo repositories.UserRepo, discountrepo repositories.DiscountRepo, couponrepo repositories.Coupons) usecasesinterface.OrderUsecaseInterface {
 
 	return &OrderUsecase{
 		OrderRepo:    orderrepo,
@@ -26,6 +27,7 @@ func NewOrderUsecase(orderrepo repositories.OrderRepo, cartrepo repositories.Car
 		ProductRepo:  productrepo,
 		UserRepo:     userrepo,
 		DiscountRepo: discountrepo,
+		CouponRepo:   couponrepo,
 	}
 
 }
@@ -79,6 +81,18 @@ func (order *OrderUsecase) AddOrder(ctx context.Context, orderreq helperstructs.
 		}
 
 		orderreq.Price += price
+	}
+
+	coupon, err := order.CouponRepo.GetCouponByID(orderreq.AppliedCoupon)
+
+	if err != nil {
+		return responce.OrderData{}, err
+	}
+
+	orderreq.Price -= coupon.OFF
+
+	if err := order.CouponRepo.RemoveCouponFromUser(coupon.ID, orderreq.Email); err != nil {
+		return responce.OrderData{}, err
 	}
 
 	orderreq.ExpectedDeliveryBy = helpers.RandomExpiry()

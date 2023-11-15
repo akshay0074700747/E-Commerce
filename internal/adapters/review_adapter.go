@@ -29,7 +29,7 @@ func (review *ReviewAdapter) CreateReview(revreq helperstructs.ReviewReq) error 
 
 func (review *ReviewAdapter) UpdateReview(revreq helperstructs.ReviewReq) error {
 
-	query := `UPDATE reviews SET product = $1,reviewed_by = ,description,,,$3,$4)`
+	query := `UPDATE reviews SET product = $1,reviewed_by = $2,description = $3,rating = $4`
 
 	return review.DB.Exec(query, revreq.Product, revreq.ReviewedBy, revreq.Description, revreq.Rating).Error
 
@@ -65,7 +65,7 @@ func (review *ReviewAdapter) DeleteReview(id uint) error {
 
 func (review *ReviewAdapter) VerifyOrderedUser(email string, productid uint) error {
 
-	query := `SELECT * FROM review_items WHERE product_id = $1 AND order_id IN (SELECT id FROM orders WHERE email = $2)`
+	query := `SELECT * FROM order_items WHERE product_id = $1 AND order_id IN (SELECT id FROM orders WHERE email = $2)`
 
 	result := review.DB.Exec(query, productid, email)
 

@@ -37,6 +37,14 @@ func VerifyPassword(password, checkpassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(checkpassword), []byte(password))
 
 }
+type dateRange int
+
+const (
+        Zero dateRange = iota
+        C
+        T
+        G
+)
 
 func StatusCheck(code int) (bool, string) {
 
@@ -92,5 +100,13 @@ func SalesReportHelper(code int) (time.Time, error) {
 	default:
 		return time.Time{}, fmt.Errorf("the provided timeframe doesnt exist")
 	}
+
+}
+
+func SelectRandomintBetweenRange(min, max int) int {
+
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	return rand.Intn(max-min+1) + min
 
 }

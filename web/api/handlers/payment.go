@@ -3,6 +3,7 @@ package handlers
 import (
 	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
 	"ecommerce/web/config"
+	"ecommerce/web/helpers"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
 	"fmt"
@@ -17,13 +18,15 @@ import (
 type PaymentHandler struct {
 	PaymentUsecase usecasesinterface.PaymentUsecaseInterface
 	OrderUsecase   usecasesinterface.OrderUsecaseInterface
+	CouponUsecase  usecasesinterface.CouponUsecaseInterface
 	Cfg            config.Config
 }
 
-func NewPaymentHandler(usecase usecasesinterface.PaymentUsecaseInterface, orderUsecase usecasesinterface.OrderUsecaseInterface, cfg config.Config) *PaymentHandler {
+func NewPaymentHandler(usecase usecasesinterface.PaymentUsecaseInterface, orderUsecase usecasesinterface.OrderUsecaseInterface, couponusecase usecasesinterface.CouponUsecaseInterface, cfg config.Config) *PaymentHandler {
 	return &PaymentHandler{
 		PaymentUsecase: usecase,
 		OrderUsecase:   orderUsecase,
+		CouponUsecase:  couponusecase,
 		Cfg:            cfg,
 	}
 }
@@ -32,7 +35,7 @@ func (payment *PaymentHandler) MakePayment(c *gin.Context) {
 
 	paramsId := c.Param("orderId")
 	orderId, err := strconv.Atoi(paramsId)
-
+//get the status of order
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responce.Response{
 			StatusCode: 400,
@@ -142,10 +145,10 @@ func (cr *PaymentHandler) PaymentSuccess(c *gin.Context) {
 	}
 
 	paymentVerifier := helperstructs.PaymentReq{
-		Email:      userID,
-		OrderID:    uint(orderID),
-		PaymentRef: paymentRef,
-		TotalPrice: int(total),
+		Email:         userID,
+		OrderID:       uint(orderID),
+		PaymentRef:    paymentRef,
+		TotalPrice:    int(total),
 		PaymentStatus: "SUCCESS",
 	}
 
@@ -161,6 +164,19 @@ func (cr *PaymentHandler) PaymentSuccess(c *gin.Context) {
 		})
 		return
 	}
+
+	coupons, err := cr.CouponUsecase.ListofCouponsAvailableForThisOrder(paymentVerifier.TotalPrice)
+
+	if err != nil {
+		fmt.Println("here occured a coupon error....", err)
+	}
+
+	i := helpers.SelectRandomintBetweenRange(0, (len(coupons) - 1))
+
+	if err := cr.CouponUsecase.CreditUserWithCoupon(paymentVerifier.Email, coupons[i]); err != nil {
+		fmt.Println("here also occured a coupon error ....", err)
+	}
+
 	c.JSON(http.StatusOK, responce.Response{
 		StatusCode: 200,
 		Message:    "payment updated",

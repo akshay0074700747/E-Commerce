@@ -4,6 +4,7 @@ import (
 	"ecommerce/internal/interfaces/repositories"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -72,8 +73,28 @@ func (coupon *CouponAdapter) UpdateCoupon(req helperstructs.CouponReq) error {
 
 func (coupon *CouponAdapter) DeleteCoupon(id uint) error {
 
+	fmt.Println(id)
+
 	query := `DELETE FROM coupons WHERE id = $1`
 
-	return coupon.DB.Exec(query).Error
+	return coupon.DB.Exec(query, id).Error
+
+}
+
+func (coupon *CouponAdapter) ListofCouponsAvailableForThisOrder(price int) ([]uint, error) {
+
+	var ids []uint
+
+	query := `SELECT id FROM coupons WHERE give_on_purchase_above < $1`
+
+	return ids, coupon.DB.Raw(query, price).Scan(&ids).Error
+
+}
+
+func (coupon *CouponAdapter) CreditUserWithCoupon(email string, id uint) error {
+
+	query := `INSERT INTO coupon_items (email,coupon) VALUES($1,$2)`
+
+	return coupon.DB.Exec(query, email, id).Error
 
 }

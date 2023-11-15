@@ -14,4 +14,6 @@ type CouponUsecaseInterface interface {
 	RemoveCouponFromUser(ctx context.Context, id uint, email string) error
 	UpdateCoupon(ctx context.Context, req helperstructs.CouponReq) error
 	DeleteCoupon(ctx context.Context, id uint) error
+	ListofCouponsAvailableForThisOrder(price int) ([]uint,error)
+	CreditUserWithCoupon(email string, id uint) error
 }

@@ -18,7 +18,7 @@ func NewPaymentAdapter(db *gorm.DB) repositories.PaymentRepo {
 
 func (payment *PaymentAdapter) Makepayment(req helperstructs.PaymentReq) error {
 
-	query := `INSERT INTO payment_details (order_id,email,payment_status,order_total,payment_ref) VALUES($1,$2,$3,$4)`
+	query := `INSERT INTO payment_details (order_id,email,payment_status,order_total,payment_ref) VALUES($1,$2,$3,$4,$5)`
 
 	return payment.DB.Exec(query, req.OrderID, req.Email, req.PaymentStatus, req.TotalPrice, req.PaymentRef).Error
 

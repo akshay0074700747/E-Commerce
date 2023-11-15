@@ -92,7 +92,7 @@ func (admn *AdminDatabase) GetCountOfUsers() (int, error) {
 
 	query := `SELECT COUNT(*) FROM users;`
 
-	return count, admn.DB.Raw(query).Scan(count).Error
+	return count, admn.DB.Raw(query).Scan(&count).Error
 
 }
 
@@ -102,7 +102,7 @@ func (admn *AdminDatabase) GetCountOfProducts() (int, error) {
 
 	query := `SELECT COUNT(*) FROM products;`
 
-	return count, admn.DB.Raw(query).Scan(count).Error
+	return count, admn.DB.Raw(query).Scan(&count).Error
 
 }
 
@@ -112,7 +112,7 @@ func (admn *AdminDatabase) GetTotalSales() (int, error) {
 
 	query := `SELECT COUNT(*) FROM orders WHERE is_cancelled = false AND return_status = false;`
 
-	return count, admn.DB.Raw(query).Scan(count).Error
+	return count, admn.DB.Raw(query).Scan(&count).Error
 
 }
 
@@ -122,7 +122,7 @@ func (admn *AdminDatabase) GetTotalCancelledOrders() (int, error) {
 
 	query := `SELECT COUNT(*) FROM orders WHERE is_cancelled = true;`
 
-	return count, admn.DB.Raw(query).Scan(count).Error
+	return count, admn.DB.Raw(query).Scan(&count).Error
 
 }
 
@@ -130,9 +130,9 @@ func (admn *AdminDatabase) GetDeliveredOrders() (int, error) {
 
 	var count int
 
-	query := `SELECT COUNT(*) FROM orders WHERE status = delivered;`
+	query := `SELECT COUNT(*) FROM orders WHERE status = 'delivered';`
 
-	return count, admn.DB.Raw(query).Scan(count).Error
+	return count, admn.DB.Raw(query).Scan(&count).Error
 
 }
 
@@ -140,9 +140,9 @@ func (admn *AdminDatabase) GetPurchasedUsers() (int, error) {
 
 	var count int
 
-	query := `SELECT COUNT(DISTINCT email) FROM orders is_cancelled = false AND return_status = false;`
+	query := `SELECT COUNT(DISTINCT email) FROM orders WHERE is_cancelled = false AND return_status = false;`
 
-	return count, admn.DB.Raw(query).Scan(count).Error
+	return count, admn.DB.Raw(query).Scan(&count).Error
 
 }
 
@@ -152,7 +152,7 @@ func (admn *AdminDatabase) ActiveDiscounts() ([]uint, error) {
 
 	query := `SELECT id FROM discounts;`
 
-	return ids, admn.DB.Raw(query).Scan(ids).Error
+	return ids, admn.DB.Raw(query).Scan(&ids).Error
 
 }
 
@@ -160,9 +160,9 @@ func (admn *AdminDatabase) TotalBlockedUsers() (int, error) {
 
 	var count int
 
-	query := `SELECT COUNT(*) FROM users WHERE is_blocked = true;`
+	query := `SELECT COUNT(*) FROM users WHERE isblocked = true;`
 
-	return count, admn.DB.Raw(query).Scan(count).Error
+	return count, admn.DB.Raw(query).Scan(&count).Error
 
 }
 
@@ -200,7 +200,7 @@ func (admn *AdminDatabase) GetCategoryIDbyProdID(prodid uint) (uint, error) {
 
 	var cat uint
 
-	query := `SELECT category_id FROM products WHERE id = $1`
+	query := `SELECT category FROM products WHERE id = $1`
 
 	return cat, admn.DB.Raw(query, prodid).Scan(&cat).Error
 
@@ -232,7 +232,9 @@ func (admn *AdminDatabase) GetMoneyByTime(timee time.Time) (int, error) {
 
 	query := `SELECT SUM(price) FROM orders WHERE order_date >= $1 AND is_cancelled = false AND return_status = false`
 
-	return count, admn.DB.Raw(query, timee).Scan(&count).Error
+	admn.DB.Raw(query, timee).Scan(&count)
+
+	return count, nil
 
 }
 
@@ -242,7 +244,7 @@ func (admn *AdminDatabase) GetProductsSoldByTime(timee time.Time) (int, error) {
 
 	query := `SELECT COUNT(DISTINCT product_id) FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE order_date >= $1)`
 
-	return count, admn.DB.Raw(query, timee).Scan(count).Error
+	return count, admn.DB.Raw(query, timee).Scan(&count).Error
 
 }
 
@@ -252,6 +254,6 @@ func (admn *AdminDatabase) GetUsersOrderedByTime(timee time.Time) (int, error) {
 
 	query := `SELECT COUNT(DISTINCT email) FROM orders WHERE order_date >= $1 AND is_cancelled = false AND return_status = false;`
 
-	return count, admn.DB.Raw(query, timee).Scan(count).Error
+	return count, admn.DB.Raw(query, timee).Scan(&count).Error
 
 }

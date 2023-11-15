@@ -13,4 +13,6 @@ type Coupons interface {
 	RemoveCouponFromUser(id uint,email string) (error)
 	UpdateCoupon(req helperstructs.CouponReq) (error)
 	DeleteCoupon(id uint) (error)
+	ListofCouponsAvailableForThisOrder(price int) ([]uint,error)
+	CreditUserWithCoupon(email string,id uint) (error)
 }

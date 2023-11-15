@@ -42,7 +42,7 @@ func (coupon *CouponUsecase) GetCouponByID(ctx context.Context, id uint) (respon
 
 func (coupon *CouponUsecase) RemoveCouponFromUser(ctx context.Context, id uint, email string) error {
 
-	return coupon.CouponRepo.RemoveCouponFromUser(id,email)
+	return coupon.CouponRepo.RemoveCouponFromUser(id, email)
 
 }
 
@@ -55,5 +55,17 @@ func (coupon *CouponUsecase) UpdateCoupon(ctx context.Context, req helperstructs
 func (coupon *CouponUsecase) DeleteCoupon(ctx context.Context, id uint) error {
 
 	return coupon.CouponRepo.DeleteCoupon(id)
+
+}
+
+func (coupon *CouponUsecase) ListofCouponsAvailableForThisOrder(price int) ([]uint, error) {
+
+	return coupon.CouponRepo.ListofCouponsAvailableForThisOrder(price)
+
+}
+
+func (coupon *CouponUsecase) CreditUserWithCoupon(email string, id uint) error {
+
+	return coupon.CouponRepo.CreditUserWithCoupon(email, id)
 
 }
