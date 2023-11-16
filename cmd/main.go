@@ -5,9 +5,12 @@ import (
 	cronejobs "ecommerce/web/crone_jobs"
 	"ecommerce/web/database"
 	"ecommerce/wireeeeeee"
+	"fmt"
 )
 
 func main() {
+
+	fmt.Println("Engine fired up...",)
 
 	config, err := config.LoadConfig()
 

@@ -37,6 +37,7 @@ func LoadConfig() (Config, error) {
 	// Perform validation
 	validate := validator.New()
 	if err := validate.Struct(config); err != nil {
+		fmt.Println("here was the validator error errorr ", err.Error())
 		return config, err
 	}
 
