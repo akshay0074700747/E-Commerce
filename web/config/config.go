@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/go-playground/validator"
@@ -21,6 +22,7 @@ func LoadConfig() (Config, error) {
 	var config Config
 
 	if err := godotenv.Load(".env"); err != nil {
+		fmt.Println("here was the errorr ", err.Error())
 		return config, err
 	}
 
