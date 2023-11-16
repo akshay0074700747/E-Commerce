@@ -9,6 +9,12 @@ RUN git clone https://github.com/akshay0074700747/e-commerce.git .
 
 RUN go mod download
 
-WORKDIR /cmd
+WORKDIR /app/cmd
 
-CMD ["make","run"]
+COPY ../cmd/.env /app/cmd/.env
+
+RUN go build -o bin/ecommerce-executable
+
+WORKDIR /app/cmd/bin
+
+CMD ["./ecommerce-executable"]
