@@ -20,7 +20,7 @@ func LoadConfig() (Config, error) {
 
 	var config Config
 
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		return config, err
 	}
 
