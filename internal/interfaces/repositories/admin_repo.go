@@ -25,8 +25,8 @@ type AdminRepo interface {
 	GetCategoryByProductID(prodid uint)(responce.CategoryData,error)
 	GetCategoryIDbyProdID(prodid uint) (uint,error)
 	GetCategoryByCatID(catid uint) (responce.CategoryData,error)
-	GetOrdrsByTime(time.Time) (int,error)
-	GetMoneyByTime(time.Time) (int,error)
-	GetProductsSoldByTime(time.Time) (int,error)
-	GetUsersOrderedByTime(time.Time) (int,error)
+	GetOrdrsByTime(starttime,endtime time.Time) (int,error)
+	GetMoneyByTime(starttime,endtime time.Time) (int,error)
+	GetProductsSoldByTime(starttime,endtime time.Time) (int,error)
+	GetUsersOrderedByTime(starttime,endtime time.Time) (int,error)
 }

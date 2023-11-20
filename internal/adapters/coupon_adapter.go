@@ -19,9 +19,9 @@ func NewCouponAdapter(db *gorm.DB) repositories.Coupons {
 
 func (coupon *CouponAdapter) AddCoupon(req helperstructs.CouponReq) error {
 
-	query := `INSERT INTO coupons (off,give_on_purchase_above,apply_on_purchase_above,description) VALUES ($1,$2,$3,$4)`
+	query := `INSERT INTO coupons (off,give_on_purchase_above,apply_on_purchase_above,is_welcome,description) VALUES ($1,$2,$3,$4,$5)`
 
-	return coupon.DB.Exec(query, req.OFF, req.GiveOnPurchaseAbove, req.ApplyOnPurchaseAbove, req.Description).Error
+	return coupon.DB.Exec(query, req.OFF, req.GiveOnPurchaseAbove, req.ApplyOnPurchaseAbove, req.IsWelcome, req.Description).Error
 
 }
 
@@ -85,7 +85,7 @@ func (coupon *CouponAdapter) ListofCouponsAvailableForThisOrder(price int) ([]ui
 
 	var ids []uint
 
-	query := `SELECT id FROM coupons WHERE give_on_purchase_above < $1`
+	query := `SELECT id FROM coupons WHERE give_on_purchase_above < $1 AND is_welcome = false`
 
 	return ids, coupon.DB.Raw(query, price).Scan(&ids).Error
 
@@ -96,5 +96,15 @@ func (coupon *CouponAdapter) CreditUserWithCoupon(email string, id uint) error {
 	query := `INSERT INTO coupon_items (email,coupon) VALUES($1,$2)`
 
 	return coupon.DB.Exec(query, email, id).Error
+
+}
+
+func (coupon *CouponAdapter) GetAllWelcomeCoupons() ([]uint, error) {
+
+	var coupons []uint
+
+	query := `SELECT id FROM coupons WHERE is_welcome = true`
+
+	return coupons, coupon.DB.Raw(query).Scan(&coupons).Error
 
 }

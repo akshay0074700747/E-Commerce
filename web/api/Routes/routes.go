@@ -161,6 +161,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 			products.PATCH("/update", prodhandler.UpdateProducts)
 			products.DELETE("/delete/:id", prodhandler.DeleteProduct)
 			products.PATCH("/stockupdate", prodhandler.UpdateStocks)
+			products.POST("/images/add/:id", prodhandler.AddImages)
 
 		}
 		discounts := admin.Group("/discounts")

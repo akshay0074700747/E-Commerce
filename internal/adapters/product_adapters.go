@@ -74,7 +74,21 @@ func (product *ProductDataBase) DeleteProduct(product_id uint) error {
 
 	deletequery := `DELETE FROM products WHERE id = $1`
 
-	return product.DB.Exec(deletequery, product_id).Error
+	err := product.DB.Exec(deletequery, product_id).Error
+
+	if err != nil {
+		return err
+	}
+
+	deletequery = `DELETE FROM images WHERE product_id = $1`
+
+	err = product.DB.Exec(deletequery, product_id).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
@@ -181,5 +195,25 @@ func (product *ProductDataBase) GetRatingByID(id uint) (float32, error) {
 	product.DB.Raw(query, id).Scan(&rating)
 
 	return rating, nil
+
+}
+
+func (product *ProductDataBase) AddImages(prod_id uint, image string) error {
+
+	query := `INSERT INTO images (product_id,image) VALUES($1,$2);`
+
+	return product.DB.Exec(query, prod_id, image).Error
+
+}
+
+func (product *ProductDataBase) GetAllImages(prod_id uint) ([]string, error) {
+
+	var images []string
+
+	query := `SELECT image FROM images WHERE product_id = $1`
+
+	product.DB.Raw(query, prod_id).Scan(&images)
+
+	return images, nil
 
 }

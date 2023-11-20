@@ -38,6 +38,7 @@ type CouponReq struct {
 	OFF                  int    `json:"off"`
 	GiveOnPurchaseAbove  int    `json:"give_onpurchase_above"`
 	ApplyOnPurchaseAbove int    `json:"apply_onpurchase_above"`
+	IsWelcome            bool   `json:"is_welcome"`
 	Description          string `json:"description"`
 }
 

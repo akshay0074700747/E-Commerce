@@ -4,6 +4,8 @@ type UserReq struct {
 	Email       string `json:"email"`
 	Name        string `json:"name"`
 	Password    string `json:"password"`
+	ReferralId  uint
+	RefferedBy  uint   `json:"referred_by"`
 	OldPassword string `json:"old_password"`
 	Mobile      string `json:"mobile"`
 	Otp         string `json:"otp"`

@@ -11,13 +11,15 @@ import (
 )
 
 type userUseCase struct {
-	userRepo repositories.UserRepo
+	userRepo   repositories.UserRepo
+	couponrepo repositories.Coupons
 }
 
-func NewUserUseCase(repo repositories.UserRepo) usecasesinterface.UserUsecaseInterface {
+func NewUserUseCase(repo repositories.UserRepo, couponrepo repositories.Coupons) usecasesinterface.UserUsecaseInterface {
 
 	return &userUseCase{
-		userRepo: repo,
+		userRepo:   repo,
+		couponrepo: couponrepo,
 	}
 }
 
@@ -31,7 +33,35 @@ func (c *userUseCase) UserSignUp(ctx context.Context, user helperstructs.UserReq
 
 	user.Password = string(hash)
 
+	user.ReferralId = uint(helpers.SelectRandomintBetweenRange(10000000, 99999999))
+
 	userData, err := c.userRepo.UserSignUp(user)
+
+	if user.RefferedBy != 0 {
+
+		refemail, err := c.userRepo.GetEmailByReferral(user.RefferedBy)
+
+		if err != nil {
+			return userData, err
+		}
+
+		avcoupons, err := c.couponrepo.GetAllWelcomeCoupons()
+
+		if err != nil {
+			return userData, err
+		}
+
+		couponid := helpers.SelectRandomintBetweenRange(0, (len(avcoupons) - 1))
+
+		if err := c.couponrepo.CreditUserWithCoupon(refemail, uint(avcoupons[couponid])); err != nil {
+			return userData, err
+		}
+
+		if err := c.couponrepo.CreditUserWithCoupon(user.Email, uint(avcoupons[couponid])); err != nil {
+			return userData, err
+		}
+
+	}
 
 	return userData, err
 }

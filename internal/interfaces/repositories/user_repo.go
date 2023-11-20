@@ -14,4 +14,5 @@ type UserRepo interface {
 	UpdateUserData(user helperstructs.UserReq) error
 	CheckPassword(email string) (string, error)
 	ChangePassword(user helperstructs.UserReq) error
+	GetEmailByReferral(refid uint) (string,error)
 }

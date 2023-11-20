@@ -4,6 +4,7 @@ import (
 	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -313,6 +314,73 @@ func (product *ProductHandler) GetProductByID(c *gin.Context) {
 		StatusCode: 200,
 		Message:    "Retrieved the product details",
 		Data:       productdata,
+		Errors:     nil,
+	})
+
+}
+
+func (product *ProductHandler) AddImages(c *gin.Context) {
+
+	id := c.Param("id")
+
+	fmt.Println(id)
+
+	iduint, err := strconv.ParseUint(id, 10, 64)
+
+	fmt.Println(iduint)
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "Coouldnt bind the id",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	form, err := c.MultipartForm()
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, responce.Response{
+			StatusCode: 422,
+			Message:    "Coouldnt upload the files",
+			Data:       nil,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	files := form.File["images"]
+
+	for _, file := range files {
+
+		if err := c.SaveUploadedFile(file, "uploads/"+file.Filename); err != nil {
+			c.JSON(http.StatusUnprocessableEntity, responce.Response{
+				StatusCode: 422,
+				Message:    "Coouldnt upload the files",
+				Data:       nil,
+				Errors:     err.Error(),
+			})
+			return
+		}
+
+		if err := product.ProductUsecase.AddProductImages(c, uint(iduint), "uploads/"+file.Filename); err != nil {
+			c.JSON(http.StatusUnprocessableEntity, responce.Response{
+				StatusCode: 422,
+				Message:    "Coouldnt upload the files",
+				Data:       nil,
+				Errors:     err.Error(),
+			})
+			return
+		}
+
+	}
+
+	c.JSON(http.StatusCreated, responce.Response{
+		StatusCode: 201,
+		Message:    "uploaded the files",
+		Data:       nil,
 		Errors:     nil,
 	})
 

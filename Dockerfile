@@ -1,7 +1,7 @@
-FROM golang:1.21-alpine
+# Build stage
+FROM golang:1.21-bullseye AS build
 
-# Using apk package manager for Alpine Linux
-RUN apk update && apk add --no-cache git
+RUN apt-get update && apt-get install -y git
 
 WORKDIR /app
 
@@ -11,10 +11,29 @@ RUN go mod download
 
 WORKDIR /app/cmd
 
-COPY ../cmd/.env /app/cmd/.env
+COPY ../cmd/.env /app/cmd/bin/.env
 
-RUN go build -o bin/ecommerce-executable
+RUN go build \
+  -ldflags="-linkmode external -extldflags -static" \
+  -tags netgo \
+  -o bin/ecommerce-executable
 
-WORKDIR /app/cmd/bin
+# Final stage
+FROM debian:bullseye-slim
+
+ENV GIN_MODE release
+
+WORKDIR /ecommerce-executable
+
+
+COPY --from=build /app/cmd/bin/ecommerce-executable .
+
+
+COPY --from=build /app/cmd/bin/.env .
+
+
+COPY --from=build /app/cmd/payment.html .
+
+EXPOSE 3000
 
 CMD ["./ecommerce-executable"]

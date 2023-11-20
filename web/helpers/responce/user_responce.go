@@ -1,12 +1,13 @@
 package responce
 
 type UserData struct {
-	Id        int    `json:"id"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Mobile    string `json:"mobile"`
-	Wallet    int    `json:"wallet"`
-	Isblocked bool   `json:"isblocked"`
+	Id         int    `json:"id"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Mobile     string `json:"mobile"`
+	Wallet     int    `json:"wallet"`
+	ReferralId uint   `json:"referel_id"`
+	Isblocked  bool   `json:"isblocked"`
 }
 
 type AddressData struct {

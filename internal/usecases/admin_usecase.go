@@ -147,24 +147,24 @@ func (admin *AdminUsecase) GetAdminDashBoard(ctx context.Context) (responce.Admi
 
 }
 
-func (admin *AdminUsecase) GetSalesReport(ctx context.Context, timee time.Time) (responce.AdminSalesReport, error) {
+func (admin *AdminUsecase) GetSalesReport(ctx context.Context, starttime,endtime time.Time) (responce.AdminSalesReport, error) {
 
 	var salesreport responce.AdminSalesReport
 	var err error
 
-	if salesreport.Orders, err = admin.AdminRepo.GetOrdrsByTime(timee); err != nil {
+	if salesreport.Orders, err = admin.AdminRepo.GetOrdrsByTime(starttime,endtime); err != nil {
 		return salesreport, err
 	}
 
-	if salesreport.TransactionAmount, err = admin.AdminRepo.GetMoneyByTime(timee); err != nil {
+	if salesreport.TransactionAmount, err = admin.AdminRepo.GetMoneyByTime(starttime,endtime); err != nil {
 		return salesreport, err
 	}
 
-	if salesreport.BuyedUsers, err = admin.AdminRepo.GetUsersOrderedByTime(timee); err != nil {
+	if salesreport.BuyedUsers, err = admin.AdminRepo.GetUsersOrderedByTime(starttime,endtime); err != nil {
 		return salesreport, err
 	}
 
-	if salesreport.ProductsSold, err = admin.AdminRepo.GetProductsSoldByTime(timee); err != nil {
+	if salesreport.ProductsSold, err = admin.AdminRepo.GetProductsSoldByTime(starttime,endtime); err != nil {
 		return salesreport, err
 	}
 

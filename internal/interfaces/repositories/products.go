@@ -19,5 +19,7 @@ type ProductsRepo interface {
 	GetPriceByID(id uint) (int, error)
 	IncreaseStock(id uint, stock int) error
 	DecreaseStock(id uint, stock int) error
-	GetRatingByID(id uint) (float32,error)
+	GetRatingByID(id uint) (float32, error)
+	AddImages(prod_id uint, image string) error
+	GetAllImages(prod_id uint) ([]string, error)
 }

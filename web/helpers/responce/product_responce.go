@@ -33,20 +33,21 @@ func (j JSONB) Value() (driver.Value, error) {
 }
 
 type ProuctData struct {
-	ID               uint    `json:"id"`
-	Category         string  `json:"category"`
-	SubCategory      string  `json:"subcategory"`
-	Brand            string  `json:"brand"`
-	Name             string  `json:"name"`
-	Description      string  `json:"description"`
-	Price            int     `json:"original_price"`
-	Rating           float32 `json:"rating"`
-	DiscountedPrice  int     `json:"discounted_price"`
-	Stock            int     `json:"stock"`
-	Specifications   JSONB   `json:"specifications"`
-	IsActive         bool    `json:"is_active"`
-	RelativeProducts *string `json:"relative_products"`
-	UpdatedBy        string  `json:"updated_by"`
+	ID               uint     `json:"id"`
+	Category         string   `json:"category"`
+	SubCategory      string   `json:"subcategory"`
+	Brand            string   `json:"brand"`
+	Name             string   `json:"name"`
+	Description      string   `json:"description"`
+	Price            int      `json:"original_price"`
+	Rating           float32  `json:"rating"`
+	DiscountedPrice  int      `json:"discounted_price"`
+	Stock            int      `json:"stock"`
+	Specifications   JSONB    `json:"specifications"`
+	Images           []string `json:"images"`
+	IsActive         bool     `json:"is_active"`
+	RelativeProducts *string  `json:"relative_products"`
+	UpdatedBy        string   `json:"updated_by"`
 	UpdatedAt        time.Time
 	CartandWishList
 }
@@ -74,5 +75,6 @@ type CouponData struct {
 	OFF                  int    `json:"off"`
 	GiveOnPurchaseAbove  int    `json:"give_onpurchase_above"`
 	ApplyOnPurchaseAbove int    `json:"apply_onpurchase_above"`
+	IsWelcome            bool   `json:"is_welcome"`
 	Description          string `json:"description"`
 }

@@ -21,7 +21,8 @@ import (
 func InitializeAPI(config2 config.Config, togglecrone chan bool, listencrone chan int) (*routes.GinEngine, error) {
 	db := database.Connect_to(config2)
 	userRepo := adapters.NewUserRepository(db)
-	userUsecaseInterface := usecases.NewUserUseCase(userRepo)
+	coupons := adapters.NewCouponAdapter(db)
+	userUsecaseInterface := usecases.NewUserUseCase(userRepo, coupons)
 	cartRepo := adapters.NewCartAdapter(db)
 	cartUseCaseInterface := usecases.NewCartUseCase(cartRepo)
 	wishListRepo := adapters.NewWishListAdapter(db)
@@ -31,7 +32,6 @@ func InitializeAPI(config2 config.Config, togglecrone chan bool, listencrone cha
 	orderRepo := adapters.NewOrderAdapter(db)
 	productsRepo := adapters.NewProductDataBase(db)
 	discountRepo := adapters.NewDiscountAdapter(db)
-	coupons := adapters.NewCouponAdapter(db)
 	orderUsecaseInterface := usecases.NewOrderUsecase(orderRepo, cartRepo, productsRepo, userRepo, discountRepo, coupons)
 	userHandler := handlers.NewUserHandler(config2, userUsecaseInterface, cartUseCaseInterface, wishListUseCaseInterface, addessUsecaseInterface, orderUsecaseInterface)
 	adminRepo := adapters.NewAdminRepository(db)

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -254,33 +255,54 @@ func (ad *AdminHandler) StartOrStopCron(c *gin.Context) {
 
 func (ad *AdminHandler) SalesReport(c *gin.Context) {
 
+	var req helperstructs.SalesReportTime
+
 	code := c.Param("code")
+	var err error
 
-	intcode, err := strconv.Atoi(code)
+	if code == "" || code == " " {
 
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, responce.Response{
-			StatusCode: 422,
-			Message:    "can't bind url param",
-			Data:       nil,
-			Errors:     err.Error(),
-		})
-		return
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusUnprocessableEntity, responce.Response{
+				StatusCode: 422,
+				Message:    "can't bind",
+				Data:       nil,
+				Errors:     err.Error(),
+			})
+			return
+		}
+
+	} else {
+
+		intcode, err := strconv.Atoi(code)
+
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, responce.Response{
+				StatusCode: 422,
+				Message:    "can't bind url param",
+				Data:       nil,
+				Errors:     err.Error(),
+			})
+			return
+		}
+
+		req.Starttime, err = helpers.SalesReportHelper(intcode)
+
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, responce.Response{
+				StatusCode: 422,
+				Message:    "the given code doesnt exist",
+				Data:       nil,
+				Errors:     err.Error(),
+			})
+			return
+		}
+
+		req.EndTime = time.Now()
+
 	}
 
-	timee, err := helpers.SalesReportHelper(intcode)
-
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, responce.Response{
-			StatusCode: 422,
-			Message:    "the given code doesnt exist",
-			Data:       nil,
-			Errors:     err.Error(),
-		})
-		return
-	}
-
-	salesdata, err := ad.AdminUsecase.GetSalesReport(c, timee)
+	salesdata, err := ad.AdminUsecase.GetSalesReport(c, req.Starttime, req.EndTime)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responce.Response{

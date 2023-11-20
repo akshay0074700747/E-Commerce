@@ -13,5 +13,5 @@ type AdminUsecaseInterface interface {
 	Reportuser(ctx context.Context, reportreq helperstructs.ReportReq) error
 	GetUser(ctx context.Context, email string) (responce.AdminsideUsersData, error)
 	GetAdminDashBoard(ctx context.Context) (responce.AdminDashBoard, error)
-	GetSalesReport(ctx context.Context, timee time.Time) (responce.AdminSalesReport, error)
+	GetSalesReport(ctx context.Context, starttime,endtime time.Time) (responce.AdminSalesReport, error)
 }

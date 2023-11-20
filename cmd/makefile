@@ -13,3 +13,8 @@ wire-gen :
 
 docker-run :
 	cd .. && docker build -t ecommerce:$(version) .
+
+	# use this --no-cache  if you updated the code
+
+docker-compose :
+	cd .. && docker-compose up

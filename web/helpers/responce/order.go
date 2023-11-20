@@ -8,6 +8,7 @@ type OrderData struct {
 	AddrID             uint
 	OrderDate          time.Time `json:"order_date"`
 	ExpectedDeliveryBy time.Time `json:"expected_delivery_by"`
+	RecievedPayment    bool      `json:"recieved_payment"`
 	ShipmentDate       time.Time `json:"shipment_date"`
 	IsShipped          bool      `json:"is_shipped"`
 	IsCancelled        bool      `json:"is_cancelled"`

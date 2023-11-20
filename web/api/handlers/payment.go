@@ -35,7 +35,7 @@ func (payment *PaymentHandler) MakePayment(c *gin.Context) {
 
 	paramsId := c.Param("orderId")
 	orderId, err := strconv.Atoi(paramsId)
-//get the status of order
+	//get the status of order
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responce.Response{
 			StatusCode: 400,
@@ -49,11 +49,21 @@ func (payment *PaymentHandler) MakePayment(c *gin.Context) {
 	orderdata, err := payment.OrderUsecase.GetOrderByID(uint(orderId))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, responce.Response{
-			StatusCode: 400,
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
 			Message:    "cant find data",
 			Data:       nil,
 			Errors:     err.Error(),
+		})
+		return
+	}
+
+	if orderdata.RecievedPayment {
+		c.JSON(http.StatusBadRequest, responce.Response{
+			StatusCode: 400,
+			Message:    "already payed",
+			Data:       nil,
+			Errors:     nil,
 		})
 		return
 	}

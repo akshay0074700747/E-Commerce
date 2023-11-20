@@ -216,44 +216,44 @@ func (admn *AdminDatabase) GetCategoryByCatID(catid uint) (responce.CategoryData
 
 }
 
-func (admn *AdminDatabase) GetOrdrsByTime(timee time.Time) (int, error) {
+func (admn *AdminDatabase) GetOrdrsByTime(starttime, endtime time.Time) (int, error) {
 
 	var count int
 
-	query := `SELECT COUNT(*) FROM orders WHERE order_date >= $1 AND is_cancelled = false AND return_status = false`
+	query := `SELECT COUNT(*) FROM orders WHERE order_date >= $1 AND order_date <= $2 AND is_cancelled = false AND return_status = false`
 
-	return count, admn.DB.Raw(query, timee).Scan(&count).Error
+	return count, admn.DB.Raw(query, starttime, endtime).Scan(&count).Error
 
 }
 
-func (admn *AdminDatabase) GetMoneyByTime(timee time.Time) (int, error) {
+func (admn *AdminDatabase) GetMoneyByTime(starttime, endtime time.Time) (int, error) {
 
 	var count int
 
-	query := `SELECT SUM(price) FROM orders WHERE order_date >= $1 AND is_cancelled = false AND return_status = false`
+	query := `SELECT SUM(price) FROM orders WHERE order_date >= $1 AND order_date <= $2 AND is_cancelled = false AND return_status = false`
 
-	admn.DB.Raw(query, timee).Scan(&count)
+	admn.DB.Raw(query, starttime, endtime).Scan(&count)
 
 	return count, nil
 
 }
 
-func (admn *AdminDatabase) GetProductsSoldByTime(timee time.Time) (int, error) {
+func (admn *AdminDatabase) GetProductsSoldByTime(starttime, endtime time.Time) (int, error) {
 
 	var count int
 
-	query := `SELECT COUNT(DISTINCT product_id) FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE order_date >= $1)`
+	query := `SELECT COUNT(DISTINCT product_id) FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE order_date >= $1 AND order_date <= $2)`
 
-	return count, admn.DB.Raw(query, timee).Scan(&count).Error
+	return count, admn.DB.Raw(query, starttime, endtime).Scan(&count).Error
 
 }
 
-func (admn *AdminDatabase) GetUsersOrderedByTime(timee time.Time) (int, error) {
+func (admn *AdminDatabase) GetUsersOrderedByTime(starttime, endtime time.Time) (int, error) {
 
 	var count int
 
-	query := `SELECT COUNT(DISTINCT email) FROM orders WHERE order_date >= $1 AND is_cancelled = false AND return_status = false;`
+	query := `SELECT COUNT(DISTINCT email) FROM orders WHERE order_date >= $1 AND order_date <= $2 AND is_cancelled = false AND return_status = false;`
 
-	return count, admn.DB.Raw(query, timee).Scan(&count).Error
+	return count, admn.DB.Raw(query, starttime, endtime).Scan(&count).Error
 
 }

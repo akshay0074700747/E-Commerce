@@ -19,5 +19,14 @@ type Products struct {
 	UpdatedBy        string `gorm:"not null"`
 }
 
+type Images struct {
+	ID        uint `gorm:"primaryKey;unique;not null"`
+	ProductID uint
+	Image     string
+}
+
+func (images *Images) Migrate_me() {
+}
+
 func (product *Products) Migrate_me() {
 }

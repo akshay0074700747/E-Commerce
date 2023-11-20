@@ -158,6 +158,7 @@ func (product *ProductUsecases) GetProducts(ctx context.Context, email, count, p
 			if err != nil {
 				return productsdata, err
 			}
+
 			if discount.Discount != float32(0) {
 				productsdata[i].DiscountedPrice = productsdata[i].Price - int((discount.Discount*float32(productsdata[i].Price))/100)
 			}
@@ -200,6 +201,12 @@ func (product *ProductUsecases) GetProductByID(ctx context.Context, id string, e
 	}
 
 	proddata, err := product.ProductRepo.GetProductByID(uint(uintid))
+
+	if err != nil {
+		return responce.ProuctData{}, err
+	}
+
+	proddata.Images, err = product.ProductRepo.GetAllImages(uint(uintid))
 
 	if err != nil {
 		return proddata, err
@@ -249,4 +256,9 @@ func (product *ProductUsecases) GetProductByID(ctx context.Context, id string, e
 
 	return proddata, nil
 
+}
+
+func (product *ProductUsecases) AddProductImages(ctx context.Context, id uint, path string) error {
+
+	return product.ProductRepo.AddImages(id, path)
 }

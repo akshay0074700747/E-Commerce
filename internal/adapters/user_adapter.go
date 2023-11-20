@@ -22,10 +22,10 @@ func (c *userDatabase) UserSignUp(user helperstructs.UserReq) (responce.UserData
 
 	var userData responce.UserData
 
-	insertQuery := `INSERT INTO users (name,email,mobile,password,created_at)VALUES($1,$2,$3,$4,$5) 
+	insertQuery := `INSERT INTO users (name,email,mobile,password,referral_id,created_at)VALUES($1,$2,$3,$4,$5,$6) 
 					RETURNING id,name,email,mobile`
 
-	err := c.DB.Raw(insertQuery, user.Name, user.Email, user.Mobile, user.Password, time.Now()).Scan(&userData).Error
+	err := c.DB.Raw(insertQuery, user.Name, user.Email, user.Mobile, user.Password, user.ReferralId, time.Now()).Scan(&userData).Error
 
 	return userData, err
 }
@@ -109,5 +109,15 @@ func (c *userDatabase) ChangePassword(user helperstructs.UserReq) error {
 	query := `UPDATE users SET password = $1 WHERE email = $2`
 
 	return c.DB.Exec(query, user.Password, user.Email).Error
+
+}
+
+func (c *userDatabase) GetEmailByReferral(refid uint) (string, error) {
+
+	var email string
+
+	query := `SELECT email FROM users WHERE referral_id = $1`
+
+	return email, c.DB.Raw(query, refid).Scan(&email).Error
 
 }
