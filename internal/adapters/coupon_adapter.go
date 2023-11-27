@@ -19,9 +19,11 @@ func NewCouponAdapter(db *gorm.DB) repositories.Coupons {
 
 func (coupon *CouponAdapter) AddCoupon(req helperstructs.CouponReq) error {
 
-	query := `INSERT INTO coupons (off,give_on_purchase_above,apply_on_purchase_above,is_welcome,description) VALUES ($1,$2,$3,$4,$5)`
+	fmt.Println(req.Description)
 
-	return coupon.DB.Exec(query, req.OFF, req.GiveOnPurchaseAbove, req.ApplyOnPurchaseAbove, req.IsWelcome, req.Description).Error
+	query := `INSERT INTO coupons (off,code,give_on_purchase_above,apply_on_purchase_above,is_welcome,description) VALUES ($1,$2,$3,$4,$5,$6)`
+
+	return coupon.DB.Exec(query, req.OFF, req.Code, req.GiveOnPurchaseAbove, req.ApplyOnPurchaseAbove, req.IsWelcome, req.Description).Error
 
 }
 
@@ -45,13 +47,13 @@ func (coupon *CouponAdapter) GetAllCoupons() ([]responce.CouponData, error) {
 
 }
 
-func (coupon *CouponAdapter) GetCouponByID(id uint) (responce.CouponData, error) {
+func (coupon *CouponAdapter) GetCouponByCode(code int) (responce.CouponData, error) {
 
 	var coupondta responce.CouponData
 
-	query := `SELECT * FROM coupons WHERE id = $1`
+	query := `SELECT * FROM coupons WHERE code = $1`
 
-	return coupondta, coupon.DB.Raw(query, id).Scan(&coupondta).Error
+	return coupondta, coupon.DB.Raw(query, code).Scan(&coupondta).Error
 
 }
 

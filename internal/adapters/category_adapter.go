@@ -4,6 +4,7 @@ import (
 	"ecommerce/internal/interfaces/repositories"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -19,6 +20,14 @@ func NewCategoryRepository(db *gorm.DB) repositories.CategoryRepo {
 }
 
 func (cat *CategoryDataBase) CreateCategory(catreq helperstructs.CategoryReq) (responce.CategoryData, error) {
+
+	checkquery := `SELECT * FROM categories WHERE category = $1 AND sub_category = $2`
+
+	res := cat.DB.Exec(checkquery,catreq.Category,catreq.SubCategory)
+
+	if res.RowsAffected != 0 {
+		return responce.CategoryData{},fmt.Errorf("the category already exists")
+	}
 
 	var catdata responce.CategoryData
 

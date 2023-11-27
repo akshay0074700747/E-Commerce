@@ -72,6 +72,7 @@ type DiscountData struct {
 
 type CouponData struct {
 	ID                   uint   `json:"id"`
+	Code                 int    `json:"code"`
 	OFF                  int    `json:"off"`
 	GiveOnPurchaseAbove  int    `json:"give_onpurchase_above"`
 	ApplyOnPurchaseAbove int    `json:"apply_onpurchase_above"`

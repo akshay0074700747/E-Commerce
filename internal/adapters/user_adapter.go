@@ -121,3 +121,13 @@ func (c *userDatabase) GetEmailByReferral(refid uint) (string, error) {
 	return email, c.DB.Raw(query, refid).Scan(&email).Error
 
 }
+
+func (c *userDatabase) GetWalletByEmail(email string) (int, error) {
+
+	var wallet int
+
+	query := `SELECT wallet FROM users WHERE email = $1`
+
+	return wallet, c.DB.Raw(query, email).Scan(&wallet).Error
+
+}

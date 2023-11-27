@@ -5,8 +5,9 @@ import "time"
 type OrderReq struct {
 	ID                 uint      `json:"id"`
 	Email              string    `json:"email"`
+	UsingWallet        bool      `json:"using_wallet"`
 	AddrID             uint      `json:"addr_id"`
-	AppliedCoupon      uint      `json:"applied_coupon"`
+	AppliedCoupon      int       `json:"applied_coupon"`
 	OrderDate          time.Time `json:"order_date"`
 	ExpectedDeliveryBy time.Time `json:"expected_delivery"`
 	ShipmentDate       time.Time `json:"shipment_date"`

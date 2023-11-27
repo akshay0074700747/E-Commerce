@@ -120,6 +120,7 @@ func NewGinEngine(userhandler *handlers.UserHandler,
 
 		admin.GET("", adminhandler.GetAdminDashBoard)
 		admin.GET("/users", adminhandler.GetAllUsers)
+		admin.GET("/users/wallet",adminhandler.UserWalletDetails)
 		admin.POST("/report", adminhandler.ReportUser)
 		admin.GET("/sales/:code", adminhandler.SalesReport)
 		admin.POST("/crone/:status", adminhandler.StartOrStopCron)

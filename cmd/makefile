@@ -12,7 +12,7 @@ wire-gen :
 	cd $(wire_dir) && wire
 
 docker-run :
-	cd .. && docker build -t ecommerce:$(version) .
+	cd .. && docker build -t ecommerce:$(version) . --no-cache
 
 	# use this --no-cache  if you updated the code
 

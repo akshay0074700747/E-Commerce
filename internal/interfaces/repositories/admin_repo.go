@@ -8,7 +8,7 @@ import (
 
 type AdminRepo interface {
 	GetByEmail(admin helperstructs.AdminReq) (responce.AdminData, error)
-	GetAllUsers() ([]responce.AdminsideUsersData, error)
+	GetAllUsers(offset,countt int) ([]responce.AdminsideUsersData, error)
 	ReportUser(reportreq helperstructs.ReportReq) error
 	GetReports(email string) (int, error)
 	GetUser(email string) (responce.AdminsideUsersData, error)
@@ -29,4 +29,5 @@ type AdminRepo interface {
 	GetMoneyByTime(starttime,endtime time.Time) (int,error)
 	GetProductsSoldByTime(starttime,endtime time.Time) (int,error)
 	GetUsersOrderedByTime(starttime,endtime time.Time) (int,error)
+	GetUsersWalletDetails(offset,countt int) ([]responce.WalletsInfo,error)
 }

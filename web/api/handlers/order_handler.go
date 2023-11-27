@@ -159,7 +159,10 @@ func (order *OrderHandler) ReturnOrder(c *gin.Context) {
 
 func (order *OrderHandler) GetAllOrders(c *gin.Context) {
 
-	orderdata, err := order.OrderUsecase.GetAllOrders(c)
+	count := c.DefaultQuery("count", "4")
+	page := c.DefaultQuery("page", "1")
+
+	orderdata, err := order.OrderUsecase.GetAllOrders(c,count,page)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responce.Response{

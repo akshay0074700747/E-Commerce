@@ -91,7 +91,10 @@ func (ad *AdminHandler) Login(c *gin.Context) {
 
 func (ad *AdminHandler) GetAllUsers(c *gin.Context) {
 
-	usersdata, err := ad.AdminUsecase.GetUsers(c)
+	count := c.DefaultQuery("count", "4")
+	page := c.DefaultQuery("page", "1")
+
+	usersdata, err := ad.AdminUsecase.GetUsers(c, count, page)
 
 	if err != nil {
 		c.JSON(http.StatusNoContent, responce.Response{
@@ -318,6 +321,32 @@ func (ad *AdminHandler) SalesReport(c *gin.Context) {
 		StatusCode: 200,
 		Message:    "Retrieved sales report successfully",
 		Data:       salesdata,
+		Errors:     nil,
+	})
+
+}
+
+func (ad *AdminHandler) UserWalletDetails(c *gin.Context) {
+
+	count := c.DefaultQuery("count", "4")
+	page := c.DefaultQuery("page", "1")
+
+	res, err := ad.AdminUsecase.GetUsersWalletDetails(c, count, page)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responce.Response{
+			StatusCode: 500,
+			Message:    "couldnt get users wallet details",
+			Data:       res,
+			Errors:     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responce.Response{
+		StatusCode: 200,
+		Message:    "Retrieved wallet details successfully",
+		Data:       res,
 		Errors:     nil,
 	})
 

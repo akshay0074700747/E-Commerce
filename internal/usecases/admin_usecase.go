@@ -7,6 +7,7 @@ import (
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -36,9 +37,18 @@ func (admin *AdminUsecase) AdminLogin(ctx context.Context, adminreq helperstruct
 
 }
 
-func (admin *AdminUsecase) GetUsers(ctx context.Context) ([]responce.AdminsideUsersData, error) {
+func (admin *AdminUsecase) GetUsers(ctx context.Context, count, page string) ([]responce.AdminsideUsersData, error) {
 
-	userdata, err := admin.AdminRepo.GetAllUsers()
+	countt, err := strconv.Atoi(count)
+	pages, errr := strconv.Atoi(page)
+
+	if err != nil || errr != nil {
+		return []responce.AdminsideUsersData{}, fmt.Errorf("the give count or pages is not of type int")
+	}
+
+	offset := (pages - 1) * countt
+
+	userdata, err := admin.AdminRepo.GetAllUsers(offset, countt)
 
 	if err != nil {
 		return userdata, err
@@ -147,27 +157,42 @@ func (admin *AdminUsecase) GetAdminDashBoard(ctx context.Context) (responce.Admi
 
 }
 
-func (admin *AdminUsecase) GetSalesReport(ctx context.Context, starttime,endtime time.Time) (responce.AdminSalesReport, error) {
+func (admin *AdminUsecase) GetSalesReport(ctx context.Context, starttime, endtime time.Time) (responce.AdminSalesReport, error) {
 
 	var salesreport responce.AdminSalesReport
 	var err error
 
-	if salesreport.Orders, err = admin.AdminRepo.GetOrdrsByTime(starttime,endtime); err != nil {
+	if salesreport.Orders, err = admin.AdminRepo.GetOrdrsByTime(starttime, endtime); err != nil {
 		return salesreport, err
 	}
 
-	if salesreport.TransactionAmount, err = admin.AdminRepo.GetMoneyByTime(starttime,endtime); err != nil {
+	if salesreport.TransactionAmount, err = admin.AdminRepo.GetMoneyByTime(starttime, endtime); err != nil {
 		return salesreport, err
 	}
 
-	if salesreport.BuyedUsers, err = admin.AdminRepo.GetUsersOrderedByTime(starttime,endtime); err != nil {
+	if salesreport.BuyedUsers, err = admin.AdminRepo.GetUsersOrderedByTime(starttime, endtime); err != nil {
 		return salesreport, err
 	}
 
-	if salesreport.ProductsSold, err = admin.AdminRepo.GetProductsSoldByTime(starttime,endtime); err != nil {
+	if salesreport.ProductsSold, err = admin.AdminRepo.GetProductsSoldByTime(starttime, endtime); err != nil {
 		return salesreport, err
 	}
 
 	return salesreport, err
+
+}
+
+func (admin *AdminUsecase) GetUsersWalletDetails(ctx context.Context, count, page string) ([]responce.WalletsInfo, error) {
+
+	countt, err := strconv.Atoi(count)
+	pages, errr := strconv.Atoi(page)
+
+	if err != nil || errr != nil {
+		return []responce.WalletsInfo{}, fmt.Errorf("the give count or pages is not of type int")
+	}
+
+	offset := (pages - 1) * countt
+
+	return admin.AdminRepo.GetUsersWalletDetails(offset, countt)
 
 }

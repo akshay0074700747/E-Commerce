@@ -8,6 +8,7 @@ import (
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
 	"fmt"
+	"strconv"
 )
 
 type OrderUsecase struct {
@@ -48,12 +49,6 @@ func (order *OrderUsecase) AddOrder(ctx context.Context, orderreq helperstructs.
 		return responce.OrderData{}, err
 	}
 
-	if orderreq.COD {
-		orderreq.RecievedPayment = false
-	} else {
-		orderreq.RecievedPayment = true
-	}
-
 	for i := range items {
 
 		price, err := order.ProductRepo.GetPriceByID(items[i].ProductId)
@@ -83,7 +78,7 @@ func (order *OrderUsecase) AddOrder(ctx context.Context, orderreq helperstructs.
 		orderreq.Price += price
 	}
 
-	coupon, err := order.CouponRepo.GetCouponByID(orderreq.AppliedCoupon)
+	coupon, err := order.CouponRepo.GetCouponByCode(orderreq.AppliedCoupon)
 
 	if err != nil {
 		return responce.OrderData{}, err
@@ -101,6 +96,41 @@ func (order *OrderUsecase) AddOrder(ctx context.Context, orderreq helperstructs.
 
 	if err != nil {
 		return orderdta, err
+	}
+
+	if orderreq.UsingWallet {
+		wallet, err := order.UserRepo.GetWalletByEmail(orderreq.Email)
+
+		fmt.Println(wallet)
+
+		if err != nil {
+			return responce.OrderData{}, err
+		}
+
+		if orderreq.Price <= wallet {
+			orderreq.Price = 0
+
+			if err := order.OrderRepo.ToggleReceivedPayment(orderdta.ID); err != nil {
+				return orderdta, err
+			}
+
+			if err = order.UserRepo.DecrementWallet(orderdta.Email, orderreq.Price); err != nil {
+				return orderdta, err
+			}
+
+		} else {
+
+			if err = order.UserRepo.DecrementWallet(orderdta.Email, wallet); err != nil {
+				return orderdta, err
+			}
+
+			orderreq.Price -= wallet
+
+		}
+
+		if err := order.OrderRepo.UpdatePriceByID(orderdta.ID, orderreq.Price); err != nil {
+			return orderdta, err
+		}
 	}
 
 	for _, item := range items {
@@ -167,7 +197,13 @@ func (order *OrderUsecase) CancelOrder(ctx context.Context, orderid uint, email 
 		return err
 	}
 
-	if !cod {
+	rec, err := order.OrderRepo.CheckRecievedPayment(orderid)
+
+	if err != nil {
+		return err
+	}
+
+	if !cod && rec {
 		price, err := order.OrderRepo.GetPriceByID(orderid)
 
 		if err != nil {
@@ -218,9 +254,18 @@ func (order *OrderUsecase) ReturnOrder(ctx context.Context, orderid uint, email 
 
 }
 
-func (order *OrderUsecase) GetAllOrders(ctx context.Context) ([]responce.OrderData, error) {
+func (order *OrderUsecase) GetAllOrders(ctx context.Context,count,page string) ([]responce.OrderData, error) {
 
-	return order.OrderRepo.GetAllOrders()
+	countt, err := strconv.Atoi(count)
+	pages, errr := strconv.Atoi(page)
+
+	if err != nil || errr != nil {
+		return []responce.OrderData{}, fmt.Errorf("the give count or pages is not of type int")
+	}
+
+	offset := (pages - 1) * countt
+
+	return order.OrderRepo.GetAllOrders(offset,countt)
 
 }
 

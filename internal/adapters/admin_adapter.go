@@ -32,13 +32,13 @@ func (admn *AdminDatabase) GetByEmail(admin helperstructs.AdminReq) (responce.Ad
 
 }
 
-func (admn *AdminDatabase) GetAllUsers() ([]responce.AdminsideUsersData, error) {
+func (admn *AdminDatabase) GetAllUsers(offset, countt int) ([]responce.AdminsideUsersData, error) {
 
 	var usersdata []responce.AdminsideUsersData
 
-	selectquery := `SELECT * FROM users`
+	selectquery := `SELECT * FROM users OFFSET $1 LIMIT $2`
 
-	err := admn.DB.Raw(selectquery).Scan(&usersdata).Error
+	err := admn.DB.Raw(selectquery, offset, countt).Scan(&usersdata).Error
 
 	return usersdata, err
 }
@@ -255,5 +255,15 @@ func (admn *AdminDatabase) GetUsersOrderedByTime(starttime, endtime time.Time) (
 	query := `SELECT COUNT(DISTINCT email) FROM orders WHERE order_date >= $1 AND order_date <= $2 AND is_cancelled = false AND return_status = false;`
 
 	return count, admn.DB.Raw(query, starttime, endtime).Scan(&count).Error
+
+}
+
+func (admn *AdminDatabase) GetUsersWalletDetails(offset, countt int) ([]responce.WalletsInfo, error) {
+
+	var res []responce.WalletsInfo
+
+	query := `SELECT email,wallet FROM users OFFSET $1 LIMIT $2`
+
+	return res, admn.DB.Raw(query, offset, countt).Scan(&res).Error
 
 }

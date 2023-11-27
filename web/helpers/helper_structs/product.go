@@ -34,7 +34,8 @@ type StockReq struct {
 }
 
 type CouponReq struct {
-	ID                   uint   `json:"id"`
+	ID                   uint `json:"id"`
+	Code                 int
 	OFF                  int    `json:"off"`
 	GiveOnPurchaseAbove  int    `json:"give_onpurchase_above"`
 	ApplyOnPurchaseAbove int    `json:"apply_onpurchase_above"`

@@ -4,6 +4,7 @@ import (
 	"context"
 	"ecommerce/internal/interfaces/repositories"
 	usecasesinterface "ecommerce/internal/interfaces/usecases_interface"
+	"ecommerce/web/helpers"
 	helperstructs "ecommerce/web/helpers/helper_structs"
 	"ecommerce/web/helpers/responce"
 )
@@ -17,6 +18,8 @@ func NewCouponUsecase(repo repositories.Coupons) usecasesinterface.CouponUsecase
 }
 
 func (coupon *CouponUsecase) AddCoupon(ctx context.Context, req helperstructs.CouponReq) error {
+
+	req.Code = helpers.SelectRandomintBetweenRange(100000,999999)
 
 	return coupon.CouponRepo.AddCoupon(req)
 
@@ -34,9 +37,9 @@ func (coupon *CouponUsecase) GetAllCoupons(ctx context.Context) ([]responce.Coup
 
 }
 
-func (coupon *CouponUsecase) GetCouponByID(ctx context.Context, id uint) (responce.CouponData, error) {
+func (coupon *CouponUsecase) GetCouponByCode(ctx context.Context, code int) (responce.CouponData, error) {
 
-	return coupon.CouponRepo.GetCouponByID(id)
+	return coupon.CouponRepo.GetCouponByCode(code)
 
 }
 

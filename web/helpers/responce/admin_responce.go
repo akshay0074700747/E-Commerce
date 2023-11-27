@@ -45,3 +45,8 @@ type AdminSalesReport struct {
 	ProductsSold      int `json:"sold_products"`
 	BuyedUsers        int `json:"buyed_users"`
 }
+
+type WalletsInfo struct {
+	Email          string `json:"user"`
+	Wallet_Balance int    `json:"wallet_balance"`
+}

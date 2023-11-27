@@ -26,9 +26,9 @@ func (order *OrderAdapter) AddOrder(ordereq helperstructs.OrderReq) (responce.Or
 
 	var orderdata responce.OrderData
 
-	query := `INSERT INTO orders (email,addr_id,expected_delivery_by,recieved_payment,cod,price,shipment_date) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id,email,addr_id,expected_delivery_by,cod,price,shipment_date`
+	query := `INSERT INTO orders (email,addr_id,expected_delivery_by,cod,price,shipment_date,using_wallet) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id,email,addr_id,expected_delivery_by,cod,price,shipment_date`
 
-	return orderdata, order.DB.Raw(query, ordereq.Email, ordereq.AddrID, ordereq.ExpectedDeliveryBy, ordereq.RecievedPayment, ordereq.COD, ordereq.Price, time.Now().Add(24*time.Hour)).Scan(&orderdata).Error
+	return orderdata, order.DB.Raw(query, ordereq.Email, ordereq.AddrID, ordereq.ExpectedDeliveryBy, ordereq.COD, ordereq.Price, time.Now().Add(24*time.Hour), ordereq.UsingWallet).Scan(&orderdata).Error
 
 }
 
@@ -96,13 +96,13 @@ func (order *OrderAdapter) GetCodById(orderid uint) (bool, error) {
 
 }
 
-func (order *OrderAdapter) GetAllOrders() ([]responce.OrderData, error) {
+func (order *OrderAdapter) GetAllOrders(offset, countt int) ([]responce.OrderData, error) {
 
 	var orderdata []responce.OrderData
 
-	query := `SELECT * FROM orders`
+	query := `SELECT * FROM orders OFFSET $1 LIMIT $2`
 
-	return orderdata, order.DB.Raw(query).Scan(&orderdata).Error
+	return orderdata, order.DB.Raw(query, offset, countt).Scan(&orderdata).Error
 
 }
 
@@ -159,5 +159,23 @@ func (order *OrderAdapter) ToggleReceivedPayment(order_id uint) error {
 	query := `UPDATE orders SET recieved_payment = true WHERE id = $1`
 
 	return order.DB.Exec(query, order_id).Error
+
+}
+
+func (order *OrderAdapter) CheckRecievedPayment(order_id uint) (bool, error) {
+
+	var rec bool
+
+	query := `SELECT recieved_payment FROM orders WHERE id = $1 AND cod = false`
+
+	return rec, order.DB.Raw(query, order_id).Scan(&rec).Error
+
+}
+
+func (order *OrderAdapter) UpdatePriceByID(orderid uint, price int) error {
+
+	qeuery := `UPDATE orders SET price = $1 WHERE id = $2`
+
+	return order.DB.Exec(qeuery, price, orderid).Error
 
 }

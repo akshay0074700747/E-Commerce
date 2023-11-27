@@ -2,6 +2,7 @@ package entities
 
 type Coupon struct {
 	ID                   uint `gorm:"primaryKey;unique;not null"`
+	Code                 int
 	OFF                  int
 	IsWelcome            bool `gorm:"default:false"`
 	GiveOnPurchaseAbove  int

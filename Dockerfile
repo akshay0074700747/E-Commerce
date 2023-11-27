@@ -34,6 +34,6 @@ COPY --from=build /app/cmd/bin/.env .
 
 COPY --from=build /app/cmd/payment.html .
 
-EXPOSE 3000
+# EXPOSE 3000
 
 CMD ["./ecommerce-executable"]

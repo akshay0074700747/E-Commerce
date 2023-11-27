@@ -35,7 +35,7 @@ func (payment *PaymentHandler) MakePayment(c *gin.Context) {
 
 	paramsId := c.Param("orderId")
 	orderId, err := strconv.Atoi(paramsId)
-	//get the status of order
+	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responce.Response{
 			StatusCode: 400,

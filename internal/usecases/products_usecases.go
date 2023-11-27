@@ -73,6 +73,12 @@ func (product *ProductUsecases) GetProducts(ctx context.Context, email, count, p
 				return productsdata, err
 			}
 
+			productsdata[i].Images, err = product.ProductRepo.GetAllImages(productsdata[i].ID)
+
+			if err != nil {
+				return productsdata, err
+			}
+
 			cat, err := product.ProductRepo.GetCategoryID(productsdata[i].Category, productsdata[i].SubCategory)
 
 			if err != nil {
