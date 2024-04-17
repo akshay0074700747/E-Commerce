@@ -48,5 +48,5 @@ type AdminSalesReport struct {
 
 type WalletsInfo struct {
 	Email          string `json:"user"`
-	Wallet_Balance int    `json:"wallet_balance"`
+	Wallet int    `json:"wallet"`
 }

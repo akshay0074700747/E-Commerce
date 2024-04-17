@@ -21,7 +21,8 @@ func Connect_to(config config.Config) *gorm.DB {
 	fmt.Println(config.DATABASE_ADDR)
 
 	if db, err = gorm.Open(postgres.Open(config.DATABASE_ADDR), &gorm.Config{}); err != nil {
-		panic(err.Error())
+		// panic(err.Error())
+		fmt.Println(err)
 	} else {
 		Migrte_all(db,
 			&entities.User{},
@@ -45,8 +46,8 @@ func Connect_to(config config.Config) *gorm.DB {
 			&entities.CouponItems{},
 			&entities.PaymentDetails{},
 			&entities.Images{})
-		return db
 	}
+	return db
 }
 
 func Migrte_all(dbconn *gorm.DB, models ...Group_tables) {

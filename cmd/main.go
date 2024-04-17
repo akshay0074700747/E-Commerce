@@ -15,7 +15,8 @@ func main() {
 	config, err := config.LoadConfig()
 
 	if err != nil {
-		panic(err.Error())
+		// panic(err.Error())
+		fmt.Println(err)
 	}
 
 	togglecrone := make(chan bool, 6)
